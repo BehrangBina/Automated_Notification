@@ -1,0 +1,25 @@
+{
+  "language": "fa",
+  "type": "warning",
+  "subject": "یادآوری مهم: تکمیل اطلاعات اعضا",
+  "title": "تکمیل اطلاعات اعضای پارمان",
+  "preheader": "خواهشمند است اطلاعات خود را تا پایان هفته تکمیل فرمایید.",
+  "paragraphs": [
+    "همراهان گرامی،",
+    "برای بهبود فرایندهای ارتباطی و اتوماسیون پارمان، خواهشمند است اطلاعات عضویت خود را تا پایان هفته بازبینی و تکمیل فرمایید.",
+    "در صورت نیاز به راهنمایی، با روابط عمومی پارمان در ارتباط باشید."
+  ],
+  "recipients": [
+    "members@parman.local"
+  ],
+  "from": "public-relations@parman.local",
+  "idempotencyKey": "member-profile-reminder-2026-06",
+  "channels": [
+    "email"
+  ],
+  "action": {
+    "label": "تکمیل اطلاعات",
+    "url": "https://example.com/parman/profile"
+  },
+  "footer": "با احترام، روابط عمومی پارمان پادشاهی ایرانیان"
+}

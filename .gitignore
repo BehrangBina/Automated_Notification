@@ -1,0 +1,17 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and logs
+node_modules/
+*.log
+
+# Node-RED runtime state and credentials
+.node-red/
+flows_*.cred
+context/
+
+# Operating system files
+Thumbs.db
+.DS_Store

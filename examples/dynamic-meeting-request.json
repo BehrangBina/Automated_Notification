@@ -1,0 +1,43 @@
+{
+  "title": "جلسه آزمایشی پویای پارمان",
+  "date": "2026-06-21",
+  "time": "14:30",
+  "timezone": "Europe/Paris",
+  "durationMinutes": 75,
+  "greeting": "همکاران گرامی",
+  "agenda": [
+    "بررسی وضعیت پروژه اتوماسیون",
+    "تعیین اولویت‌های مرحله بعد",
+    "جمع‌بندی و تعیین مسئولیت‌ها"
+  ],
+  "zoomUrl": "https://zoom.us/j/123456789?pwd=test",
+  "meetingId": "123 456 789",
+  "passcode": "poc",
+  "idempotencyKey": "dynamic-meeting-2026-06-21-1430",
+  "organizer": {
+    "name": "مینا چنگیزی",
+    "email": "mina@parman.local"
+  },
+  "recipients": [
+    "team-one@parman.local",
+    "team-two@parman.local"
+  ],
+  "displayTimezones": [
+    {
+      "label": "اروپای مرکزی",
+      "timezone": "Europe/Paris"
+    },
+    {
+      "label": "ملبورن",
+      "timezone": "Australia/Melbourne"
+    },
+    {
+      "label": "لندن",
+      "timezone": "Europe/London"
+    },
+    {
+      "label": "نیویورک",
+      "timezone": "America/New_York"
+    }
+  ]
+}

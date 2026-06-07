@@ -1,0 +1,5 @@
+{
+  "subject": "Checkpoint 7 simulated delivery failure",
+  "to": "failure-test@parman.local",
+  "idempotencyKey": "checkpoint7-failure-test-1"
+}

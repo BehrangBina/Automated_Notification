@@ -1,0 +1,21 @@
+{
+  "language": "en",
+  "type": "info",
+  "subject": "Parman automation update",
+  "title": "A new process is now available",
+  "paragraphs": [
+    "Dear colleagues,",
+    "The latest Parman automation process is ready for review.",
+    "Please use the link below to view the update."
+  ],
+  "recipients": [
+    "members@parman.local"
+  ],
+  "channels": [
+    "email"
+  ],
+  "action": {
+    "label": "View update",
+    "url": "https://example.com/parman/update"
+  }
+}

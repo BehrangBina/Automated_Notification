@@ -1,0 +1,11 @@
+{
+  "id": "parvin-zandi",
+  "name": "بانو پروین زندی گرامی",
+  "birthday": "06-07",
+  "timezone": "Australia/Melbourne",
+  "sendHour": 9,
+  "recipientEmails": [
+    "members@parman.local"
+  ],
+  "active": true
+}

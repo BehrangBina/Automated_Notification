@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{SUBJECT}}</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap");
+    @media only screen and (max-width: 620px) {
+      .email-shell { width: 100% !important; }
+      .content-pad { padding: 24px 18px !important; }
+      .hero-title { font-size: 25px !important; }
+      .time-cell { display: block !important; width: auto !important; }
+      .zoom-button { display: block !important; text-align: center !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#eef2f7;color:#172033;direction:rtl;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    {{PREHEADER}}
+  </div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+         style="width:100%;background-color:#eef2f7;border-collapse:collapse;">
+    <tr>
+      <td align="center" style="padding:28px 12px;">
+        <table role="presentation" class="email-shell" width="680" cellspacing="0" cellpadding="0" border="0"
+               style="width:680px;max-width:680px;background:#ffffff;border-collapse:separate;border-spacing:0;border-radius:18px;overflow:hidden;box-shadow:0 8px 28px rgba(23,32,51,.10);font-family:Vazirmatn,Tahoma,Arial,sans-serif;">
+          <tr>
+            <td class="content-pad" style="padding:34px 42px;background:#173b57;color:#ffffff;text-align:right;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;">
+                <tr>
+                  <td width="112" valign="middle" style="width:112px;padding-left:20px;">
+                    <img src="cid:parman-logo" width="96" alt="نشان پارمان"
+                         style="display:block;width:96px;height:auto;border:0;">
+                  </td>
+                  <td valign="middle" style="text-align:right;">
+                    <div style="font-size:13px;font-weight:700;letter-spacing:.2px;color:#a9d5e7;">PARMAN SOFTWARE WORKING GROUP</div>
+                    <h1 class="hero-title" style="margin:10px 0 4px;font-size:30px;line-height:1.5;font-weight:800;color:#ffffff;">
+                      {{MEETING_TITLE}}
+                    </h1>
+                    <div style="font-size:15px;color:#d9edf5;">دعوت‌نامه رسمی نشست آنلاین</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="content-pad" style="padding:34px 42px;text-align:right;line-height:2;font-size:16px;">
+              <p style="margin:0 0 12px;font-size:19px;font-weight:700;">{{GREETING}}</p>
+              <p style="margin:0 0 14px;">درود بر شما</p>
+              <p style="margin:0 0 24px;">
+                بدین‌وسیله از شما دعوت می‌گردد در نشست <strong>{{MEETING_TITLE}}</strong> که در
+                <strong>{{SOURCE_DATE}}</strong> برگزار می‌گردد، حضور به‌هم رسانید.
+              </p>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                     style="width:100%;border-collapse:separate;border-spacing:0;background:#f4f8fb;border:1px solid #dce7ee;border-radius:12px;">
+                <tr>
+                  <td style="padding:18px 20px;line-height:2;">
+                    <div>📆 <strong>زمان:</strong> {{SOURCE_DATE}}</div>
+                    <div>🕘 <strong>ساعت:</strong> {{SOURCE_TIME}}</div>
+                    <div>⏳ <strong>مدت نشست:</strong> {{DURATION_MINUTES}} دقیقه</div>
+                  </td>
+                </tr>
+              </table>
+
+              <h2 style="margin:28px 0 12px;font-size:20px;color:#173b57;">دستور جلسه</h2>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                     style="width:100%;border-collapse:collapse;">
+                {{AGENDA_ROWS}}
+              </table>
+
+              <h2 style="margin:28px 0 12px;font-size:20px;color:#173b57;">زمان جلسه در مناطق مختلف</h2>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                     style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #dce7ee;border-radius:12px;overflow:hidden;">
+                {{TIMEZONE_ROWS}}
+              </table>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                     style="width:100%;margin-top:28px;border-collapse:collapse;">
+                <tr>
+                  <td align="center">
+                    <a class="zoom-button" href="{{ZOOM_URL}}"
+                       style="display:inline-block;background:#1473e6;color:#ffffff;text-decoration:none;font-weight:800;font-size:17px;line-height:1;padding:17px 30px;border-radius:10px;">
+                      پیوستن به جلسه Zoom
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <div dir="ltr" style="margin-top:20px;padding:16px 18px;background:#f7f8fa;border-radius:10px;text-align:left;font-family:Arial,sans-serif;font-size:14px;line-height:1.8;color:#384152;">
+                <strong>Meeting ID:</strong> {{MEETING_ID}}<br>
+                <strong>Passcode:</strong> {{PASSCODE}}
+              </div>
+
+              <p style="margin:24px 0 0;color:#5e6878;font-size:14px;">
+                فایل تقویم <strong>meeting-invite.ics</strong> نیز به این ایمیل پیوست شده است.
+              </p>
+              <p style="margin:26px 0 0;">{{CLOSING}}</p>
+              <p style="margin:18px 0 0;">با احترام و مهر<br><strong>{{ORGANIZER_NAME}}</strong></p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 28px;background:#f4f8fb;color:#667386;text-align:center;font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-size:12px;line-height:1.8;">
+              این دعوت‌نامه به‌صورت خودکار توسط سامانه اتوماسیون پارمان ایجاد شده است.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
