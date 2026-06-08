@@ -164,6 +164,11 @@ input:focus, textarea:focus, select:focus { border-color: #4f90cc; box-shadow: 0
 .section-divider p:last-child { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .secret-note { margin: 4px 0 18px; padding: 13px 14px; display: flex; gap: 8px; border: 1px solid #f0d8a8; border-radius: 11px; background: #fff8e8; color: #725018; font-size: 12px; line-height: 1.5; }
 .secret-note strong { color: #5f420f; }
+.demo-guide-card { padding: 22px 24px; border: 1px solid rgba(214,223,230,.85); border-radius: 16px; background: #fff; box-shadow: 0 5px 22px rgba(22,48,70,.055); }
+.demo-guide-card ol { margin: 0; padding-left: 22px; color: var(--ink); line-height: 1.8; }
+.demo-guide-card li { padding-left: 4px; }
+.demo-guide-card p { margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+.demo-guide-card code { padding: 2px 5px; border-radius: 5px; background: #edf3f7; color: var(--navy); }
 .backup-summary { min-height: 136px; margin-bottom: 18px; border: 1px solid var(--line); border-radius: 12px; background: #f8fafc; overflow: hidden; }
 .backup-grid { padding: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .backup-grid span { padding: 10px; border-radius: 9px; background: #fff; color: var(--muted); font-size: 12px; }

@@ -44,6 +44,8 @@ Send guardrails require preview approval and the `SEND TO MAILPIT` phrase before
 
 SMTP readiness fields are planning metadata only. Do not store SMTP passwords or API keys in the dashboard; future secrets should come from Docker or Node-RED environment variables.
 
+The demo and handoff guide is in `docs/demo-guide.md`.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
