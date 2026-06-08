@@ -3,9 +3,12 @@ const state = {
   deliveries: [],
   recipientGroups: [],
   schedules: [],
+  meetingReminders: [],
+  scheduleRuns: [],
   pendingSend: null,
   pendingDeleteContact: null,
-  pendingDeleteGroup: null
+  pendingDeleteGroup: null,
+  pendingDeleteReminder: null
 };
 
 if (location.port !== "1880") {
@@ -122,7 +125,11 @@ function showView(name) {
   if (name === "overview") loadOverview();
   if (name === "birthdays") loadContacts();
   if (name === "groups") loadRecipientGroups();
-  if (name === "schedules") loadSchedules();
+  if (name === "schedules") {
+    loadSchedules();
+    loadMeetingReminders();
+    loadScheduleRuns();
+  }
   if (name === "history") loadHistory();
   history.replaceState(null, "", `#${name}`);
 }
@@ -199,6 +206,71 @@ async function loadSchedules() {
   }
 }
 
+async function loadMeetingReminders() {
+  const container = $("#reminders-list");
+  try {
+    const data = await api("/api/meeting-reminders");
+    state.meetingReminders = data.reminders || [];
+    if (!state.meetingReminders.length) {
+      container.innerHTML = '<div class="empty-state">No meeting reminders saved yet.</div>';
+      return;
+    }
+    container.innerHTML = state.meetingReminders.map(reminder => `
+      <div class="reminder-card">
+        <div>
+          <span class="status ${reminder.status === "sent" ? "sent" : reminder.status === "due" ? "failed" : "queued"}">${escapeHtml(reminder.status)}</span>
+          <strong>${escapeHtml(reminder.title)}</strong>
+          <span>Reminder: ${escapeHtml(new Date(reminder.remindAt).toLocaleString())}</span>
+          <small>${escapeHtml(reminder.recipients.join(", "))}${reminder.sentAt ? ` · Sent: ${escapeHtml(new Date(reminder.sentAt).toLocaleString())}` : ""}</small>
+        </div>
+        <div class="contact-actions">
+          <button type="button" data-edit-reminder="${escapeHtml(reminder.id)}">Edit</button>
+          <button class="delete-contact-button" type="button" data-delete-reminder="${escapeHtml(reminder.id)}">Delete</button>
+        </div>
+      </div>`).join("");
+  } catch (error) {
+    container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function formatRunSummary(summary = {}) {
+  const entries = Object.entries(summary).filter(([, value]) =>
+    value !== undefined && value !== null && !Array.isArray(value) && typeof value !== "object"
+  );
+  if (!entries.length) return '<span class="summary-chip">No summary details</span>';
+  return entries.map(([key, value]) =>
+    `<span class="summary-chip"><b>${escapeHtml(key)}</b>${escapeHtml(value)}</span>`
+  ).join("");
+}
+
+async function loadScheduleRuns() {
+  const container = $("#schedule-run-log");
+  if (!container) return;
+  container.innerHTML = '<div class="empty-state">Loading schedule run log...</div>';
+  const filter = $("#schedule-run-filter")?.value || "";
+  const query = new URLSearchParams({ limit: "50" });
+  if (filter) query.set("job", filter);
+  try {
+    const data = await api(`/api/schedule-runs?${query}`);
+    state.scheduleRuns = data.runs || [];
+    if (!state.scheduleRuns.length) {
+      container.innerHTML = '<div class="empty-state">No schedule runs recorded yet. Click a manual run button to create the first log.</div>';
+      return;
+    }
+    container.innerHTML = state.scheduleRuns.map(run => `
+      <article class="run-log-card">
+        <div class="run-log-main">
+          <span class="status ${run.status === "success" ? "sent" : run.status === "failed" ? "failed" : "queued"}">${escapeHtml(run.status)}</span>
+          <strong>${escapeHtml(run.name || run.job)}</strong>
+          <span>${escapeHtml(run.trigger || "unknown")} run · ${escapeHtml(new Date(run.ranAt).toLocaleString())}</span>
+        </div>
+        <div class="run-log-summary">${formatRunSummary(run.summary)}</div>
+      </article>`).join("");
+  } catch (error) {
+    container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
 function editRecipientGroup(id) {
   const group = state.recipientGroups.find(item => item.id === id);
   if (!group) return;
@@ -232,6 +304,70 @@ function openDeleteGroup(id) {
 function closeDeleteGroup() {
   state.pendingDeleteGroup = null;
   $("#delete-group-modal").classList.add("hidden");
+}
+
+function editMeetingReminder(id) {
+  const reminder = state.meetingReminders.find(item => item.id === id);
+  if (!reminder) return;
+  const form = $("#meeting-reminder-form");
+  form.elements.id.value = reminder.id;
+  form.elements.title.value = reminder.title;
+  form.elements.remindAt.value = reminder.remindAt.slice(0, 16);
+  form.elements.meetingDate.value = reminder.meetingDate || "";
+  form.elements.meetingTime.value = reminder.meetingTime || "";
+  form.elements.meetingTimezone.value = reminder.meetingTimezone || "Europe/Paris";
+  form.elements.zoomUrl.value = reminder.zoomUrl || "";
+  form.elements.recipients.value = reminder.recipients.join("\n");
+  form.elements.message.value = reminder.message || "";
+  form.elements.enabled.checked = reminder.enabled !== false;
+  $("#meeting-reminder-form-title").textContent = "Edit meeting reminder";
+  $("#cancel-reminder-edit").classList.remove("hidden");
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetMeetingReminderForm() {
+  const form = $("#meeting-reminder-form");
+  form.reset();
+  form.elements.id.value = "";
+  form.elements.recipients.value = "members@parman.local";
+  form.elements.message.value = "This is a friendly reminder for the upcoming meeting.";
+  form.elements.enabled.checked = true;
+  $("#meeting-reminder-form-title").textContent = "Create meeting reminder";
+  $("#cancel-reminder-edit").classList.add("hidden");
+}
+
+function openDeleteReminder(id) {
+  const reminder = state.meetingReminders.find(item => item.id === id);
+  if (!reminder) return;
+  state.pendingDeleteReminder = reminder;
+  $("#delete-reminder-message").textContent = `${reminder.title} will be permanently removed.`;
+  $("#delete-reminder-modal").classList.remove("hidden");
+  $("#confirm-reminder-delete").focus();
+}
+
+function closeDeleteReminder() {
+  state.pendingDeleteReminder = null;
+  $("#delete-reminder-modal").classList.add("hidden");
+}
+
+async function deleteMeetingReminder() {
+  const reminder = state.pendingDeleteReminder;
+  if (!reminder) return;
+  const button = $("#confirm-reminder-delete");
+  button.disabled = true;
+  button.textContent = "Deleting...";
+  try {
+    await api(`/api/meeting-reminders/${encodeURIComponent(reminder.id)}`, { method: "DELETE" });
+    if ($("#meeting-reminder-form").elements.id.value === reminder.id) resetMeetingReminderForm();
+    closeDeleteReminder();
+    toast(`${reminder.title} was deleted.`);
+    await loadMeetingReminders();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Delete reminder";
+  }
 }
 
 async function deleteRecipientGroup() {
@@ -482,6 +618,35 @@ $("#recipient-group-form").addEventListener("submit", async event => {
   }
 });
 
+$("#meeting-reminder-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true);
+  const values = Object.fromEntries(new FormData(form));
+  const payload = {
+    id: values.id || undefined,
+    title: values.title,
+    remindAt: values.remindAt,
+    meetingDate: values.meetingDate,
+    meetingTime: values.meetingTime,
+    meetingTimezone: values.meetingTimezone,
+    zoomUrl: values.zoomUrl,
+    recipients: splitEmails(values.recipients),
+    message: values.message,
+    enabled: form.elements.enabled.checked
+  };
+  try {
+    await api("/api/meeting-reminders", { method: "POST", body: JSON.stringify(payload) });
+    toast(values.id ? "Meeting reminder updated." : "Meeting reminder saved.");
+    resetMeetingReminderForm();
+    await loadMeetingReminders();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    setBusy(form, false);
+  }
+});
+
 $("#run-birthday-test").addEventListener("click", async event => {
   const selected = $$(".contact-select:checked").map(input => input.value);
   if (!selected.length) {
@@ -582,6 +747,7 @@ $("#schedules-list").addEventListener("click", async event => {
       });
       toast(enabled ? "Schedule enabled." : "Schedule disabled.");
       await loadSchedules();
+      await loadScheduleRuns();
     } catch (error) {
       toast(error.message, true);
       toggle.disabled = false;
@@ -592,12 +758,20 @@ $("#schedules-list").addEventListener("click", async event => {
     try {
       const result = await api("/api/birthdays/check", { method: "POST", body: JSON.stringify({ force: false }) });
       toast(`Birthday check ran. Queued: ${result.queued || 0}.`);
+      await loadScheduleRuns();
     } catch (error) {
       toast(error.message, true);
     } finally {
       run.disabled = false;
     }
   }
+});
+
+$("#reminders-list").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit-reminder]");
+  const deleteButton = event.target.closest("[data-delete-reminder]");
+  if (editButton) editMeetingReminder(editButton.dataset.editReminder);
+  if (deleteButton) openDeleteReminder(deleteButton.dataset.deleteReminder);
 });
 
 $$(".apply-recipient-group").forEach(button => button.addEventListener("click", () => {
@@ -626,6 +800,42 @@ $("#send-preview-modal").addEventListener("click", event => {
 });
 $("#refresh-groups").addEventListener("click", loadRecipientGroups);
 $("#refresh-schedules").addEventListener("click", loadSchedules);
+$("#refresh-run-log").addEventListener("click", loadScheduleRuns);
+$("#schedule-run-filter").addEventListener("change", loadScheduleRuns);
+$("#clear-run-log").addEventListener("click", async event => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await api("/api/schedule-runs", { method: "DELETE", body: "{}" });
+    toast("Schedule run log cleared.");
+    await loadScheduleRuns();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+});
+$("#refresh-reminders").addEventListener("click", loadMeetingReminders);
+$("#run-reminder-check").addEventListener("click", async event => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const result = await api("/api/meeting-reminders/check", { method: "POST", body: "{}" });
+    toast(`Meeting reminder check ran. Sent: ${result.sentCount || 0}.`);
+    await loadMeetingReminders();
+    await loadScheduleRuns();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+});
+$("#cancel-reminder-edit").addEventListener("click", resetMeetingReminderForm);
+$("#cancel-reminder-delete").addEventListener("click", closeDeleteReminder);
+$("#confirm-reminder-delete").addEventListener("click", deleteMeetingReminder);
+$("#delete-reminder-modal").addEventListener("click", event => {
+  if (event.target === event.currentTarget) closeDeleteReminder();
+});
 $("#cancel-group-edit").addEventListener("click", resetRecipientGroupForm);
 $("#cancel-group-delete").addEventListener("click", closeDeleteGroup);
 $("#confirm-group-delete").addEventListener("click", deleteRecipientGroup);
@@ -641,11 +851,13 @@ document.addEventListener("keydown", event => {
   if (event.key === "Escape" && !$("#send-preview-modal").classList.contains("hidden")) closeSendPreview();
   if (event.key === "Escape" && !$("#delete-contact-modal").classList.contains("hidden")) closeDeleteContact();
   if (event.key === "Escape" && !$("#delete-group-modal").classList.contains("hidden")) closeDeleteGroup();
+  if (event.key === "Escape" && !$("#delete-reminder-modal").classList.contains("hidden")) closeDeleteReminder();
 });
 $("#refresh-history").addEventListener("click", loadHistory);
 $("#history-status").addEventListener("change", loadHistory);
 $("#history-source").addEventListener("change", loadHistory);
 
 loadRecipientGroups();
+loadMeetingReminders();
 const initialView = location.hash.replace("#", "");
 showView(["overview", "meetings", "birthdays", "notifications", "groups", "schedules", "history"].includes(initialView) ? initialView : "overview");

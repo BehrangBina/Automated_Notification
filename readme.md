@@ -32,6 +32,10 @@ Meeting, birthday test, and notification sends require a preview confirmation be
 
 Schedules can be viewed and enabled/disabled from the dashboard. Checkpoint 10A controls the automatic birthday check.
 
+Meeting reminders can be scheduled from the dashboard and are sent once when due.
+
+Schedule run logs show when birthday checks and meeting-reminder checks ran, whether they were manual or automatic, and a compact summary of what happened.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
@@ -52,3 +56,15 @@ Checkpoint 10A schedule APIs:
 
 - `GET /api/schedules`
 - `POST /api/schedules/:id`
+
+Checkpoint 10B meeting-reminder APIs:
+
+- `GET /api/meeting-reminders`
+- `POST /api/meeting-reminders`
+- `DELETE /api/meeting-reminders/:id`
+- `POST /api/meeting-reminders/check`
+
+Checkpoint 10C schedule-run log APIs:
+
+- `GET /api/schedule-runs`
+- `DELETE /api/schedule-runs`

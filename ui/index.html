@@ -211,6 +211,50 @@
             <button class="secondary-button" id="refresh-schedules">Refresh schedules</button>
           </div>
           <div id="schedules-list" class="schedule-list"><div class="empty-state">Loading schedules...</div></div>
+
+          <div class="section-heading split">
+            <div><p class="eyebrow">MEETING REMINDERS</p><h2>Scheduled reminders</h2><p>Create reminder emails that send once when their reminder time is due.</p></div>
+            <button class="secondary-button" id="run-reminder-check">Run due reminders now</button>
+          </div>
+          <div class="two-column">
+            <form class="form-card compact" id="meeting-reminder-form">
+              <input type="hidden" name="id">
+              <h3 id="meeting-reminder-form-title">Create meeting reminder</h3>
+              <label><span>Reminder title</span><input name="title" required placeholder="Software Working Group reminder"></label>
+              <label><span>Reminder time <small>Local browser time</small></span><input name="remindAt" type="datetime-local" required></label>
+              <div class="form-grid two">
+                <label><span>Meeting date <small>Optional</small></span><input name="meetingDate" type="date"></label>
+                <label><span>Meeting time <small>Optional</small></span><input name="meetingTime" type="time"></label>
+              </div>
+              <label><span>Meeting timezone <small>Optional</small></span><select name="meetingTimezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
+              <label><span>Zoom URL <small>Optional</small></span><input name="zoomUrl" type="url" placeholder="https://zoom.us/j/..."></label>
+              <label><span>Recipients <small>New line, comma, or semicolon</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
+              <label><span>Reminder message <small>Optional</small></span><textarea name="message" rows="4">This is a friendly reminder for the upcoming meeting.</textarea></label>
+              <label class="checkbox"><input name="enabled" type="checkbox" checked><span>Enabled</span></label>
+              <div class="form-actions">
+                <button type="button" class="text-button hidden" id="cancel-reminder-edit">Cancel edit</button>
+                <button class="primary-button" type="submit">Save reminder</button>
+              </div>
+            </form>
+            <div class="panel">
+              <div class="panel-head"><h3>Saved reminders</h3><button class="icon-button" id="refresh-reminders">Refresh</button></div>
+              <div id="reminders-list" class="reminder-list"><div class="empty-state">Loading meeting reminders...</div></div>
+            </div>
+          </div>
+
+          <div class="section-heading split">
+            <div><p class="eyebrow">RUN AUDIT</p><h2>Schedule run log</h2><p>See when automatic checks or manual test runs happened, and what they did.</p></div>
+            <div class="schedule-actions">
+              <select id="schedule-run-filter" aria-label="Filter schedule run log">
+                <option value="">All jobs</option>
+                <option value="birthday-check">Birthday check</option>
+                <option value="meeting-reminders">Meeting reminders</option>
+              </select>
+              <button class="secondary-button" id="refresh-run-log">Refresh run log</button>
+              <button class="danger-button" id="clear-run-log">Clear log</button>
+            </div>
+          </div>
+          <div id="schedule-run-log" class="run-log-list"><div class="empty-state">Loading schedule run log...</div></div>
         </section>
 
         <section class="view" id="view-history">
@@ -267,6 +311,19 @@
       <div class="confirm-actions">
         <button class="secondary-button" type="button" id="cancel-send-preview">Go back and edit</button>
         <button class="primary-button" type="button" id="confirm-send-preview">Confirm send to Mailpit</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="delete-reminder-modal">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-reminder-title">
+      <div class="confirm-icon">!</div>
+      <p class="eyebrow">CONFIRM DELETION</p>
+      <h2 id="delete-reminder-title">Delete reminder?</h2>
+      <p id="delete-reminder-message">This meeting reminder will be permanently removed.</p>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" id="cancel-reminder-delete">Keep reminder</button>
+        <button class="danger-button" type="button" id="confirm-reminder-delete">Delete reminder</button>
       </div>
     </section>
   </div>
