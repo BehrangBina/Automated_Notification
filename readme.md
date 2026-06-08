@@ -14,6 +14,12 @@ Node-RED proof of concept for safe local automation:
 
 All email is sent to local Mailpit. Real email is intentionally disabled.
 
+Do not use real member data in this POC. For political-party member data or other sensitive data, read the security/compliance position first:
+
+```text
+docs/security-compliance-position.md
+```
+
 ## Current Status
 
 This repo contains the dashboard files, templates, examples, and Node-RED deployment scripts.
@@ -123,7 +129,7 @@ docs/demo-guide.md
 Suggested demo path:
 
 1. Open Settings and show safe mode.
-2. Show SMTP readiness planning and the “no password in UI” rule.
+2. Show SMTP readiness planning and the "no password in UI" rule.
 3. Create or select a recipient group.
 4. Send a meeting invite.
 5. In the preview modal, type `SEND TO MAILPIT`.
@@ -134,11 +140,30 @@ Suggested demo path:
 
 The dashboard remains in safe POC mode:
 
+- fake/sample data only
 - email goes to local Mailpit
 - real email is disabled
 - SMTP settings are planning metadata only
 - SMTP passwords/API keys must not be stored in the dashboard
 - send previews require the `SEND TO MAILPIT` phrase
+
+## Security And Compliance
+
+This POC is suitable for demonstration with fake data. It is not approved for real political-party member data.
+
+See:
+
+```text
+docs/security-compliance-position.md
+```
+
+That document explains:
+
+- why the POC uses safe local Mailpit delivery
+- why political-party member data needs stronger controls
+- where data should live in production
+- which production controls are required before real member data
+- how Node-RED should be used as an automation worker rather than the permanent sensitive-data store
 
 ## Dashboard Features
 
