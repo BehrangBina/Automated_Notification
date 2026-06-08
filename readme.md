@@ -18,9 +18,9 @@ All email is sent to local Mailpit. Real email is intentionally disabled.
 
 This repo contains the dashboard files, templates, examples, and Node-RED deployment scripts.
 
-Important: this is not yet a one-command fresh install package. A fresh PC can run it, but the Node-RED flows must be deployed by running the checkpoint scripts in order.
+Important: this is now easier to run with `setup.ps1`, but it is still not a full production installer. The checkpoint scripts are kept in the repo for transparency and recovery.
 
-The future improvement would be a `docker-compose.yml` plus one `setup.ps1` script.
+The future improvement would be a `docker-compose.yml` and a fresh-volume verification pass.
 
 ## Requirements
 
@@ -39,6 +39,33 @@ git clone https://github.com/BehrangBina/Automated_Notification.git
 cd Automated_Notification
 ```
 
+Run the setup wrapper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+The wrapper will:
+
+- start or create the Node-RED container
+- start or create the Mailpit container
+- wait for both services
+- deploy the Node-RED POC flows
+- deploy the local dashboard
+- print the URLs to open
+
+Then open:
+
+- Dashboard: http://localhost:1880/app/?v=latest#overview
+- Node-RED: http://localhost:1880
+- Mailpit: http://localhost:8025
+
+If the dashboard looks old, press `Ctrl + F5`.
+
+## Manual Container Commands
+
+Use these only if you do not want to use `setup.ps1`.
+
 Start Node-RED:
 
 ```powershell
@@ -56,9 +83,9 @@ Open:
 - Node-RED: http://localhost:1880
 - Mailpit: http://localhost:8025
 
-## Deploy The POC Flows
+## Manual Flow Deployment
 
-Run these scripts from the repo folder in PowerShell.
+Use this only if `setup.ps1` fails or if you want to redeploy one checkpoint manually.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint4.ps1
@@ -218,11 +245,9 @@ and press `Ctrl + F5`.
 
 ## Known Packaging Gap
 
-The repo is shareable, but not yet fully packaged for one-command setup.
+The repo is shareable and has a setup wrapper, but it is not yet fully packaged as a production-style installer.
 
 Recommended next packaging work:
 
 - add `docker-compose.yml`
-- add `setup.ps1`
-- make setup deploy all flows automatically
 - verify from a fresh Docker volume
