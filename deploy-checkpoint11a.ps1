@@ -18,13 +18,22 @@ const defaults = {
     defaultFromEmail: 'notifications@parman.local',
     replyToEmail: 'reply@parman.local',
     approvalPhrase: 'APPROVE LIVE SEND',
+    smtpProvider: '',
+    smtpHost: '',
+    smtpPort: '',
+    smtpUsername: '',
+    senderDomain: '',
+    smtpSecretSource: 'Docker environment variable',
     lastUpdatedAt: null
 };
 const saved = global.get('appSettings') || {};
 const settings = { ...defaults, ...saved, safeMode: true, liveEmailEnabled: false, smtpConfigured: false, emailTransport: 'Mailpit' };
+const smtpPlanReady = Boolean(settings.smtpProvider && settings.smtpHost && settings.smtpPort && settings.smtpUsername && settings.senderDomain);
 const readiness = [
     { id: 'safe-mode', label: 'Safe mode is locked on', ok: settings.safeMode, detail: 'All email continues to route to local Mailpit.' },
     { id: 'smtp', label: 'Real SMTP is not configured', ok: !settings.smtpConfigured, detail: 'No live SMTP credentials are stored in this POC.' },
+    { id: 'smtp-plan', label: 'SMTP plan documented', ok: smtpPlanReady, detail: smtpPlanReady ? 'Provider, host, port, username, and sender domain are documented.' : 'Document provider, host, port, username, and sender domain before a future pilot.' },
+    { id: 'secrets', label: 'SMTP password is not stored in UI', ok: true, detail: 'Future SMTP secrets must be injected through Docker or Node-RED environment variables.' },
     { id: 'approval', label: 'Live-send approval phrase exists', ok: Boolean(settings.approvalPhrase), detail: 'This phrase will be required before any future live-send switch.' },
     { id: 'history', label: 'Delivery history is available', ok: true, detail: 'Sent, failed, duplicate, and retry records can be reviewed.' },
     { id: 'run-log', label: 'Schedule run log is available', ok: true, detail: 'Birthday and meeting reminder checks record compact run summaries.' }
@@ -54,6 +63,12 @@ const next = {
     defaultFromEmail: text(body.defaultFromEmail) || 'notifications@parman.local',
     replyToEmail: text(body.replyToEmail) || 'reply@parman.local',
     approvalPhrase: text(body.approvalPhrase) || 'APPROVE LIVE SEND',
+    smtpProvider: text(body.smtpProvider),
+    smtpHost: text(body.smtpHost),
+    smtpPort: text(body.smtpPort),
+    smtpUsername: text(body.smtpUsername),
+    senderDomain: text(body.senderDomain),
+    smtpSecretSource: 'Docker environment variable',
     safeMode: true,
     liveEmailEnabled: false,
     smtpConfigured: false,
@@ -64,6 +79,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 if (!emailPattern.test(next.defaultFromEmail)) errors.push('Default from email must look like an email address.');
 if (!emailPattern.test(next.replyToEmail)) errors.push('Reply-to email must look like an email address.');
 if (next.approvalPhrase.length < 8) errors.push('Approval phrase must be at least 8 characters.');
+if (next.smtpPort && (!/^\d+$/.test(next.smtpPort) || Number(next.smtpPort) < 1 || Number(next.smtpPort) > 65535)) errors.push('SMTP port must be a number between 1 and 65535.');
 if (body.liveEmailEnabled === true || body.safeMode === false || body.smtpConfigured === true) {
     errors.push('Live email cannot be enabled in Checkpoint 11A.');
 }

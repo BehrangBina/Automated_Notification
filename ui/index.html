@@ -295,6 +295,18 @@
               <label><span>Default from email</span><input name="defaultFromEmail" type="email" required placeholder="notifications@parman.local"></label>
               <label><span>Reply-to email</span><input name="replyToEmail" type="email" required placeholder="reply@parman.local"></label>
               <label><span>Future live-send approval phrase</span><input name="approvalPhrase" required placeholder="APPROVE LIVE SEND"></label>
+              <div class="section-divider">
+                <p class="eyebrow">SMTP READINESS PLAN</p>
+                <p>Document future provider details only. Do not paste SMTP passwords here.</p>
+              </div>
+              <label><span>SMTP provider <small>Planning only</small></span><input name="smtpProvider" placeholder="Brevo, SendGrid, Gmail, Microsoft 365, Amazon SES"></label>
+              <div class="form-grid two">
+                <label><span>SMTP host</span><input name="smtpHost" placeholder="smtp.example.com"></label>
+                <label><span>SMTP port</span><input name="smtpPort" inputmode="numeric" placeholder="587"></label>
+              </div>
+              <label><span>SMTP username <small>No password</small></span><input name="smtpUsername" placeholder="apikey or mailbox@example.com"></label>
+              <label><span>Sender domain</span><input name="senderDomain" placeholder="parman.org"></label>
+              <div class="secret-note"><strong>Secret rule:</strong><span>SMTP passwords/API keys must be stored later as Docker or Node-RED environment variables, not in this dashboard.</span></div>
               <div class="form-actions">
                 <p>Live email remains locked off in this checkpoint.</p>
                 <button class="primary-button" type="submit">Save safety settings</button>

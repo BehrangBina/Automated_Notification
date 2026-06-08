@@ -42,6 +42,8 @@ Backups can be exported and restored as JSON. Restore keeps live email disabled 
 
 Send guardrails require preview approval and the `SEND TO MAILPIT` phrase before test emails are accepted from the dashboard.
 
+SMTP readiness fields are planning metadata only. Do not store SMTP passwords or API keys in the dashboard; future secrets should come from Docker or Node-RED environment variables.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`

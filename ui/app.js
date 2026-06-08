@@ -362,6 +362,11 @@ async function loadSettings() {
     form.elements.defaultFromEmail.value = data.settings.defaultFromEmail || "";
     form.elements.replyToEmail.value = data.settings.replyToEmail || "";
     form.elements.approvalPhrase.value = data.settings.approvalPhrase || "";
+    form.elements.smtpProvider.value = data.settings.smtpProvider || "";
+    form.elements.smtpHost.value = data.settings.smtpHost || "";
+    form.elements.smtpPort.value = data.settings.smtpPort || "";
+    form.elements.smtpUsername.value = data.settings.smtpUsername || "";
+    form.elements.senderDomain.value = data.settings.senderDomain || "";
     $("#safe-mode-title").textContent = data.settings.safeMode ? "Safe mode is active" : "Safe mode is off";
     $("#safe-mode-detail").textContent = `${data.settings.environmentName} · ${data.settings.emailTransport} · Live email ${data.settings.liveEmailEnabled ? "enabled" : "disabled"}`;
     renderReadiness(data.readiness || []);
