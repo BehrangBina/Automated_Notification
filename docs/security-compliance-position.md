@@ -30,6 +30,28 @@ The POC intentionally uses:
 
 This makes the POC useful for demonstrating process automation while avoiding real email delivery and avoiding real member data.
 
+### POC Architecture
+
+```mermaid
+flowchart LR
+    Admin["Demo user on trusted PC"] --> UI["Local dashboard"]
+    UI --> NR["Node-RED automation"]
+    NR --> MP["Mailpit local mailbox"]
+    NR --> CTX["Node-RED context and Docker volume"]
+    MP --> Admin
+    GH["Public GitHub repo"] --> CODE["Code, templates, sample data only"]
+
+    classDef safe fill:#e8f7ef,stroke:#198754,color:#153b2a;
+    classDef local fill:#eaf2fb,stroke:#1473e6,color:#173b57;
+    classDef warning fill:#fff6df,stroke:#c88a14,color:#5f420f;
+
+    class Admin,UI,NR,MP local;
+    class CODE,GH safe;
+    class CTX warning;
+```
+
+The POC boundary is deliberately local. Only fake/sample data should enter this flow.
+
 ## Compliance-Relevant Baseline
 
 For Germany/EU production planning, the relevant baseline includes:
@@ -80,30 +102,69 @@ POC data locations:
 
 The GitHub repo must never contain real member data, secrets, or exported production backups.
 
+### POC Versus Production
+
+```mermaid
+flowchart TB
+    subgraph POC[POC - demonstration only]
+        P1["Fake/sample data"]
+        P2["Local dashboard"]
+        P3["Node-RED context"]
+        P4["Mailpit"]
+        P1 --> P2 --> P3 --> P4
+    end
+
+    subgraph PROD[Production - sensitive member data]
+        R1["Real member data"]
+        R2["Authenticated UI + MFA"]
+        R3["Secure backend API"]
+        R4["Encrypted database"]
+        R5["Approved email provider"]
+        R6["Audit and monitoring"]
+        R1 --> R2 --> R3 --> R4
+        R3 --> R5
+        R3 --> R6
+    end
+
+    POC -. "not a direct production deployment" .-> PROD
+
+    classDef poc fill:#fff6df,stroke:#c88a14,color:#5f420f;
+    classDef prod fill:#e8f7ef,stroke:#198754,color:#153b2a;
+    class P1,P2,P3,P4 poc;
+    class R1,R2,R3,R4,R5,R6 prod;
+```
+
 ## Recommended Production Architecture
 
 Recommended shape:
 
-```text
-Authenticated Admin Users
-        |
-        v
-Secure Web Application
-        |
-        v
-Backend API
-        |
-        v
-Encrypted Production Database
-        |
-        +--> Email/Notification Provider
-        |
-        +--> Audit Log / Monitoring
+```mermaid
+flowchart TB
+    Admin["Authorised administrators"] --> Auth["Identity provider, MFA, RBAC"]
+    Auth --> Web["Secure administration UI"]
+    Web --> API["Backend API"]
+    API --> DB[("Encrypted member database")]
+    API --> Queue["Minimal-data job queue"]
+    Queue --> Worker["Node-RED / automation worker"]
+    Worker --> Email["Approved email provider"]
+    Email --> Status["Delivery events"]
+    Status --> API
+    API --> Audit[("Tamper-resistant audit log")]
+    DB --> Backup["Encrypted, access-controlled backups"]
+    Secrets["Secret manager / environment variables"] --> API
+    Secrets --> Worker
+    Monitor["Monitoring and incident response"] --> API
+    Monitor --> Worker
 
-Node-RED / Automation Worker
-        |
-        v
-Receives minimal job data, performs automation, reports status
+    classDef identity fill:#efeafa,stroke:#7355a5,color:#382657;
+    classDef secure fill:#e8f7ef,stroke:#198754,color:#153b2a;
+    classDef automation fill:#eaf2fb,stroke:#1473e6,color:#173b57;
+    classDef controls fill:#fff6df,stroke:#c88a14,color:#5f420f;
+
+    class Admin,Auth identity;
+    class Web,API,DB,Audit,Backup secure;
+    class Queue,Worker,Email,Status automation;
+    class Secrets,Monitor controls;
 ```
 
 Production data should remain in:
@@ -158,6 +219,30 @@ Suggested production data separation:
 
 Sensitive fields should be minimised. Access should be scoped by role and purpose.
 
+### Member Data Flow
+
+```mermaid
+sequenceDiagram
+    actor Admin as Authorised administrator
+    participant UI as Secure UI
+    participant API as Backend API
+    participant DB as Encrypted database
+    participant Worker as Automation worker
+    participant Provider as Email provider
+    participant Audit as Audit log
+
+    Admin->>UI: Authenticate with MFA
+    UI->>API: Request approved communication
+    API->>DB: Read minimum required member fields
+    DB-->>API: Approved recipient subset
+    API->>Audit: Record access and send approval
+    API->>Worker: Send minimal job payload
+    Worker->>Provider: Deliver message
+    Provider-->>Worker: Delivery status
+    Worker-->>API: Status only
+    API->>Audit: Record result
+```
+
 ## Backup And Export Rules
 
 Backups and exports are high-risk because they can copy the entire membership list.
@@ -208,6 +293,31 @@ It does not demonstrate:
 - production encryption
 - production retention/deletion processes
 - real member-data processing approval
+
+## Security And Compliance Roadmap
+
+```mermaid
+flowchart LR
+    A["Safe POC<br/>fake data + Mailpit"] --> B["Data mapping and classification"]
+    B --> C["GDPR lawful basis + Article 9 review"]
+    C --> D["DPIA / DPO / legal review"]
+    D --> E["Secure production architecture"]
+    E --> F["Authentication, MFA, RBAC, TLS"]
+    F --> G["Encrypted DB, backups, secrets, audit"]
+    G --> H["Security and privacy testing"]
+    H --> I["One-recipient real-email pilot"]
+    I --> J["Formal approval and controlled rollout"]
+
+    classDef current fill:#eaf2fb,stroke:#1473e6,color:#173b57;
+    classDef governance fill:#efeafa,stroke:#7355a5,color:#382657;
+    classDef security fill:#fff6df,stroke:#c88a14,color:#5f420f;
+    classDef approval fill:#e8f7ef,stroke:#198754,color:#153b2a;
+
+    class A current;
+    class B,C,D governance;
+    class E,F,G,H security;
+    class I,J approval;
+```
 
 ## Go/No-Go Position
 
