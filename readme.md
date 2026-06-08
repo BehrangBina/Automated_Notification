@@ -36,6 +36,12 @@ Meeting reminders can be scheduled from the dashboard and are sent once when due
 
 Schedule run logs show when birthday checks and meeting-reminder checks ran, whether they were manual or automatic, and a compact summary of what happened.
 
+Safety settings show the current safe-mode configuration and production-readiness checklist. Checkpoint 11A does not enable live email.
+
+Backups can be exported and restored as JSON. Restore keeps live email disabled and routes email to Mailpit.
+
+Send guardrails require preview approval and the `SEND TO MAILPIT` phrase before test emails are accepted from the dashboard.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
@@ -68,3 +74,13 @@ Checkpoint 10C schedule-run log APIs:
 
 - `GET /api/schedule-runs`
 - `DELETE /api/schedule-runs`
+
+Checkpoint 11A safety settings APIs:
+
+- `GET /api/settings`
+- `POST /api/settings`
+
+Checkpoint 11B backup APIs:
+
+- `GET /api/backups/export`
+- `POST /api/backups/restore`

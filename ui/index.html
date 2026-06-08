@@ -26,6 +26,7 @@
         <button class="nav-item" data-view="groups"><span>05</span>Recipient groups</button>
         <button class="nav-item" data-view="schedules"><span>06</span>Schedules</button>
         <button class="nav-item" data-view="history"><span>07</span>Delivery history</button>
+        <button class="nav-item" data-view="settings"><span>08</span>Settings</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -77,6 +78,7 @@
             <button class="quick-card" data-go="notifications"><b>Announcement</b><span>Persian or English branded notification</span></button>
             <button class="quick-card" data-go="groups"><b>Recipient groups</b><span>Reuse the same email lists across every message</span></button>
             <button class="quick-card" data-go="schedules"><b>Schedules</b><span>Control automatic checks while staying in Mailpit mode</span></button>
+            <button class="quick-card" data-go="settings"><b>Safety settings</b><span>Review safe mode and production-readiness basics</span></button>
           </div>
         </section>
 
@@ -84,6 +86,7 @@
           <div class="section-heading">
             <div><p class="eyebrow">MEETING INVITATIONS</p><h2>Create a global meeting</h2><p>Enter the meeting in its source timezone. Local times and the calendar attachment are generated automatically.</p></div>
           </div>
+          <div class="safe-send-banner"><strong>Safe mode</strong><span>This meeting invite will be sent only to local Mailpit after preview approval.</span></div>
           <form class="form-card" id="meeting-form">
             <div class="form-grid two">
               <label><span>Meeting title</span><input name="title" required value="جلسه کارگروه نرم‌افزار پارمان" dir="rtl"></label>
@@ -122,6 +125,7 @@
             <div><p class="eyebrow">BIRTHDAY AUTOMATION</p><h2>Birthday contacts</h2><p>Saved contacts survive Node-RED restarts and are checked in their local timezone.</p></div>
             <button class="secondary-button" id="run-birthday-test">Send selected birthday test</button>
           </div>
+          <div class="safe-send-banner"><strong>Safe mode</strong><span>Birthday tests require preview approval and go only to local Mailpit.</span></div>
           <div class="two-column">
             <form class="form-card compact" id="birthday-form">
               <input type="hidden" name="id">
@@ -154,6 +158,7 @@
           <div class="section-heading">
             <div><p class="eyebrow">ANNOUNCEMENTS & REMINDERS</p><h2>Compose a notification</h2><p>The layout automatically switches between Persian RTL and English LTR.</p></div>
           </div>
+          <div class="safe-send-banner"><strong>Safe mode</strong><span>Notifications require preview approval and go only to local Mailpit.</span></div>
           <form class="form-card" id="notification-form">
             <div class="form-grid two">
               <label><span>Language</span><select name="language"><option value="fa">Persian</option><option value="en">English</option></select></label>
@@ -273,6 +278,64 @@
             </table>
           </div>
         </section>
+
+        <section class="view" id="view-settings">
+          <div class="section-heading">
+            <div><p class="eyebrow">PRODUCTION READINESS</p><h2>Safety settings</h2><p>Checkpoint 11A keeps live email disabled. This page documents the current safe-mode settings and what must be true before any future live-send phase.</p></div>
+          </div>
+          <div class="safety-banner">
+            <strong id="safe-mode-title">Safe mode is active</strong>
+            <span id="safe-mode-detail">Emails continue to go to local Mailpit only.</span>
+          </div>
+          <div class="two-column">
+            <form class="form-card compact" id="settings-form">
+              <h3>Operator settings</h3>
+              <label><span>Environment name</span><input name="environmentName" required placeholder="Local POC"></label>
+              <label><span>Default from name</span><input name="defaultFromName" required placeholder="Parman Automation"></label>
+              <label><span>Default from email</span><input name="defaultFromEmail" type="email" required placeholder="notifications@parman.local"></label>
+              <label><span>Reply-to email</span><input name="replyToEmail" type="email" required placeholder="reply@parman.local"></label>
+              <label><span>Future live-send approval phrase</span><input name="approvalPhrase" required placeholder="APPROVE LIVE SEND"></label>
+              <div class="form-actions">
+                <p>Live email remains locked off in this checkpoint.</p>
+                <button class="primary-button" type="submit">Save safety settings</button>
+              </div>
+            </form>
+            <div class="panel">
+              <div class="panel-head"><h3>Readiness checklist</h3><button class="icon-button" id="refresh-settings">Refresh</button></div>
+              <div id="readiness-list" class="readiness-list"><div class="empty-state">Loading settings...</div></div>
+            </div>
+          </div>
+          <div class="section-heading">
+            <div><p class="eyebrow">SEND GUARDRAILS</p><h2>Pre-flight checklist</h2><p>These protections apply before POC messages are accepted for delivery.</p></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Active send protections</h3><span class="status sent">safe</span></div>
+            <div id="preflight-list" class="readiness-list"><div class="empty-state">Loading pre-flight checklist...</div></div>
+          </div>
+          <div class="section-heading">
+            <div><p class="eyebrow">BACKUP & RESTORE</p><h2>Portable POC backup</h2><p>Export the current local data as JSON, or paste a backup JSON to restore it. Restore keeps live email disabled.</p></div>
+          </div>
+          <div class="two-column">
+            <div class="form-card compact">
+              <h3>Export backup</h3>
+              <p class="helper-text">Includes contacts, recipient groups, reminders, settings, schedules, run logs, and delivery metadata.</p>
+              <div id="backup-summary" class="backup-summary"><div class="empty-state">No backup loaded yet.</div></div>
+              <div class="form-actions">
+                <p>The file stays on your computer.</p>
+                <button class="primary-button" type="button" id="export-backup">Download backup JSON</button>
+              </div>
+            </div>
+            <form class="form-card compact" id="restore-form">
+              <h3>Restore backup</h3>
+              <label><span>Backup JSON</span><textarea name="backupJson" rows="10" required placeholder="Paste exported backup JSON here"></textarea></label>
+              <label class="checkbox"><input name="confirmRestore" type="checkbox" required><span>I understand this replaces saved POC data</span></label>
+              <div class="form-actions">
+                <p>Live email remains locked off after restore.</p>
+                <button class="danger-button" type="submit">Restore backup</button>
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
     </main>
   </div>
@@ -307,7 +370,12 @@
     <section class="confirm-dialog preview-dialog" role="dialog" aria-modal="true" aria-labelledby="send-preview-title">
       <p class="eyebrow">REVIEW BEFORE SENDING</p>
       <h2 id="send-preview-title">Confirm send</h2>
+      <div class="send-guardrail">
+        <strong>Safe mode confirmation</strong>
+        <span>Review the recipients below. This POC will send to local Mailpit only.</span>
+      </div>
       <div id="send-preview-body" class="preview-body"></div>
+      <label class="approval-field"><span>Type <b id="send-approval-phrase">SEND TO MAILPIT</b> to confirm</span><input id="send-approval-input" autocomplete="off" placeholder="SEND TO MAILPIT"></label>
       <div class="confirm-actions">
         <button class="secondary-button" type="button" id="cancel-send-preview">Go back and edit</button>
         <button class="primary-button" type="button" id="confirm-send-preview">Confirm send to Mailpit</button>

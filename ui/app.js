@@ -5,6 +5,7 @@ const state = {
   schedules: [],
   meetingReminders: [],
   scheduleRuns: [],
+  settings: null,
   pendingSend: null,
   pendingDeleteContact: null,
   pendingDeleteGroup: null,
@@ -17,6 +18,7 @@ if (location.port !== "1880") {
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+const SEND_APPROVAL_PHRASE = "SEND TO MAILPIT";
 
 function splitLines(value) {
   return value.split(/\r?\n/).map(item => item.trim()).filter(Boolean);
@@ -55,13 +57,15 @@ function renderPreview(title, rows) {
     </dl>`;
 }
 
-function openSendPreview(title, rows, confirmLabel, onConfirm) {
-  state.pendingSend = { onConfirm };
+function openSendPreview(title, rows, confirmLabel, onConfirm, guardrail = {}) {
+  state.pendingSend = { onConfirm, approvalPhrase: guardrail.approvalPhrase || SEND_APPROVAL_PHRASE };
   $("#send-preview-title").textContent = title;
   $("#send-preview-body").innerHTML = renderPreview(title, rows);
+  $("#send-approval-phrase").textContent = state.pendingSend.approvalPhrase;
+  $("#send-approval-input").value = "";
   $("#confirm-send-preview").textContent = confirmLabel || "Confirm send to Mailpit";
   $("#send-preview-modal").classList.remove("hidden");
-  $("#confirm-send-preview").focus();
+  $("#send-approval-input").focus();
 }
 
 function closeSendPreview() {
@@ -71,6 +75,12 @@ function closeSendPreview() {
 
 async function confirmPendingSend() {
   if (!state.pendingSend) return;
+  const typed = $("#send-approval-input").value.trim();
+  if (typed !== state.pendingSend.approvalPhrase) {
+    toast(`Type ${state.pendingSend.approvalPhrase} before sending.`, true);
+    $("#send-approval-input").focus();
+    return;
+  }
   const button = $("#confirm-send-preview");
   const action = state.pendingSend.onConfirm;
   button.disabled = true;
@@ -119,7 +129,7 @@ function setBusy(form, busy) {
 function showView(name) {
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.view === name));
-  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", schedules: "Schedules", history: "Delivery history" };
+  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", schedules: "Schedules", history: "Delivery history", settings: "Settings" };
   $("#page-title").textContent = labels[name] || "Parman Automation";
   $(".sidebar").classList.remove("open");
   if (name === "overview") loadOverview();
@@ -131,6 +141,7 @@ function showView(name) {
     loadScheduleRuns();
   }
   if (name === "history") loadHistory();
+  if (name === "settings") loadSettings();
   history.replaceState(null, "", `#${name}`);
 }
 
@@ -268,6 +279,96 @@ async function loadScheduleRuns() {
       </article>`).join("");
   } catch (error) {
     container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function renderReadiness(readiness = []) {
+  const container = $("#readiness-list");
+  if (!readiness.length) {
+    container.innerHTML = '<div class="empty-state">No readiness checks returned.</div>';
+    return;
+  }
+  container.innerHTML = readiness.map(item => `
+    <div class="readiness-item">
+      <span class="readiness-dot ${item.ok ? "ok" : "blocked"}"></span>
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${escapeHtml(item.detail)}</span>
+      </div>
+    </div>`).join("");
+}
+
+function renderPreflightChecklist() {
+  const container = $("#preflight-list");
+  if (!container) return;
+  const items = [
+    { ok: true, label: "Safe mode badge is visible", detail: "Send screens show that emails are routed to local Mailpit." },
+    { ok: true, label: "Preview is required", detail: "Meeting, birthday test, and notification sends open a review modal first." },
+    { ok: true, label: "Approval phrase is required", detail: `The sender must type ${SEND_APPROVAL_PHRASE} before confirming.` },
+    { ok: true, label: "Live email remains blocked", detail: "Settings and restore force live email off and keep Mailpit as transport." }
+  ];
+  container.innerHTML = items.map(item => `
+    <div class="readiness-item">
+      <span class="readiness-dot ${item.ok ? "ok" : "blocked"}"></span>
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${escapeHtml(item.detail)}</span>
+      </div>
+    </div>`).join("");
+}
+
+function renderBackupSummary(backup) {
+  const container = $("#backup-summary");
+  if (!container) return;
+  if (!backup) {
+    container.innerHTML = '<div class="empty-state">No backup loaded yet.</div>';
+    return;
+  }
+  const counts = backup.counts || {};
+  const exportedAt = backup.exportedAt ? new Date(backup.exportedAt).toLocaleString() : "Not exported yet";
+  container.innerHTML = `
+    <div class="backup-grid">
+      <span><b>Exported</b>${escapeHtml(exportedAt)}</span>
+      <span><b>Birthday contacts</b>${escapeHtml(counts.birthdayContacts || 0)}</span>
+      <span><b>Recipient groups</b>${escapeHtml(counts.recipientGroups || 0)}</span>
+      <span><b>Meeting reminders</b>${escapeHtml(counts.meetingReminders || 0)}</span>
+      <span><b>Run logs</b>${escapeHtml(counts.scheduleRunLog || 0)}</span>
+      <span><b>Delivery records</b>${escapeHtml(counts.deliveryHistory || 0)}</span>
+    </div>`;
+}
+
+function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function loadSettings() {
+  const form = $("#settings-form");
+  const list = $("#readiness-list");
+  if (!form || !list) return;
+  list.innerHTML = '<div class="empty-state">Loading settings...</div>';
+  try {
+    const data = await api("/api/settings");
+    state.settings = data.settings;
+    form.elements.environmentName.value = data.settings.environmentName || "";
+    form.elements.defaultFromName.value = data.settings.defaultFromName || "";
+    form.elements.defaultFromEmail.value = data.settings.defaultFromEmail || "";
+    form.elements.replyToEmail.value = data.settings.replyToEmail || "";
+    form.elements.approvalPhrase.value = data.settings.approvalPhrase || "";
+    $("#safe-mode-title").textContent = data.settings.safeMode ? "Safe mode is active" : "Safe mode is off";
+    $("#safe-mode-detail").textContent = `${data.settings.environmentName} · ${data.settings.emailTransport} · Live email ${data.settings.liveEmailEnabled ? "enabled" : "disabled"}`;
+    renderReadiness(data.readiness || []);
+    renderPreflightChecklist();
+    renderBackupSummary(null);
+  } catch (error) {
+    list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
 }
 
@@ -647,6 +748,46 @@ $("#meeting-reminder-form").addEventListener("submit", async event => {
   }
 });
 
+$("#settings-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true);
+  const values = Object.fromEntries(new FormData(form));
+  try {
+    await api("/api/settings", { method: "POST", body: JSON.stringify(values) });
+    toast("Safety settings saved. Live email is still disabled.");
+    await loadSettings();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    setBusy(form, false);
+  }
+});
+
+$("#restore-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true);
+  try {
+    const backup = JSON.parse(form.elements.backupJson.value);
+    const result = await api("/api/backups/restore", { method: "POST", body: JSON.stringify(backup) });
+    toast(result.message || "Backup restored.");
+    form.reset();
+    await Promise.all([
+      loadSettings(),
+      loadContacts(),
+      loadRecipientGroups(),
+      loadMeetingReminders(),
+      loadScheduleRuns(),
+      loadHistory()
+    ]);
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    setBusy(form, false);
+  }
+});
+
 $("#run-birthday-test").addEventListener("click", async event => {
   const selected = $$(".contact-select:checked").map(input => input.value);
   if (!selected.length) {
@@ -856,8 +997,28 @@ document.addEventListener("keydown", event => {
 $("#refresh-history").addEventListener("click", loadHistory);
 $("#history-status").addEventListener("change", loadHistory);
 $("#history-source").addEventListener("change", loadHistory);
+$("#refresh-settings").addEventListener("click", loadSettings);
+$("#export-backup").addEventListener("click", async event => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  if (!button.dataset.label) button.dataset.label = button.textContent;
+  button.textContent = "Exporting...";
+  try {
+    const backup = await api("/api/backups/export");
+    renderBackupSummary(backup);
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    downloadJson(`parman-poc-backup-${stamp}.json`, backup);
+    toast("Backup JSON downloaded.");
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = button.dataset.label || "Download backup JSON";
+    delete button.dataset.label;
+  }
+});
 
 loadRecipientGroups();
 loadMeetingReminders();
 const initialView = location.hash.replace("#", "");
-showView(["overview", "meetings", "birthdays", "notifications", "groups", "schedules", "history"].includes(initialView) ? initialView : "overview");
+showView(["overview", "meetings", "birthdays", "notifications", "groups", "schedules", "history", "settings"].includes(initialView) ? initialView : "overview");
