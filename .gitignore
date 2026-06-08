@@ -11,6 +11,13 @@ node_modules/
 .node-red/
 flows_*.cred
 context/
+data/
+secrets/
+
+# POC exports and backups may contain personal data
+parman-poc-backup-*.json
+*.backup.json
+backups/
 
 # Operating system files
 Thumbs.db
