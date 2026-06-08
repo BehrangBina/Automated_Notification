@@ -126,6 +126,12 @@ input:focus, textarea:focus, select:focus { border-color: #4f90cc; box-shadow: 0
 .contact-card button { padding: 6px 9px; border: 0; border-radius: 7px; background: #eaf1f5; color: var(--navy); font-size: 11px; font-weight: 700; }
 .contact-card .delete-contact-button { background: #fff0f0; color: var(--red); }
 .group-list { padding: 10px; }
+.schedule-list { display: grid; gap: 14px; }
+.schedule-card { padding: 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid rgba(214,223,230,.85); border-radius: 16px; background: #fff; box-shadow: 0 5px 22px rgba(22,48,70,.055); }
+.schedule-card h3 { margin: 10px 0 8px; color: var(--navy); }
+.schedule-card p { margin: 0 0 10px; color: var(--muted); line-height: 1.6; }
+.schedule-card small { color: #7b8794; }
+.schedule-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .group-card { padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 10px; }
 .group-card:hover { background: #f5f8fa; }
 .group-card strong, .group-card span, .group-card small { display: block; }
@@ -189,6 +195,9 @@ td { color: #44505e; }
   .two-column, .form-grid.two, .form-grid.three { grid-template-columns: 1fr; }
   .group-picker { grid-template-columns: 1fr; }
   .section-heading.split, .form-actions { align-items: stretch; flex-direction: column; }
+  .schedule-card { align-items: stretch; flex-direction: column; }
+  .schedule-actions { justify-content: stretch; }
+  .schedule-actions button { flex: 1; }
 }
 @media (max-width: 520px) {
   .stats-grid, .quick-grid { grid-template-columns: 1fr; }

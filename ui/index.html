@@ -24,7 +24,8 @@
         <button class="nav-item" data-view="birthdays"><span>03</span>Birthdays</button>
         <button class="nav-item" data-view="notifications"><span>04</span>Notifications</button>
         <button class="nav-item" data-view="groups"><span>05</span>Recipient groups</button>
-        <button class="nav-item" data-view="history"><span>06</span>Delivery history</button>
+        <button class="nav-item" data-view="schedules"><span>06</span>Schedules</button>
+        <button class="nav-item" data-view="history"><span>07</span>Delivery history</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -75,6 +76,7 @@
             <button class="quick-card" data-go="birthdays"><b>Birthday contact</b><span>Save people and run a safe birthday test</span></button>
             <button class="quick-card" data-go="notifications"><b>Announcement</b><span>Persian or English branded notification</span></button>
             <button class="quick-card" data-go="groups"><b>Recipient groups</b><span>Reuse the same email lists across every message</span></button>
+            <button class="quick-card" data-go="schedules"><b>Schedules</b><span>Control automatic checks while staying in Mailpit mode</span></button>
           </div>
         </section>
 
@@ -201,6 +203,14 @@
               <div id="groups-list" class="group-list"><div class="empty-state">Loading recipient groups...</div></div>
             </div>
           </div>
+        </section>
+
+        <section class="view" id="view-schedules">
+          <div class="section-heading split">
+            <div><p class="eyebrow">AUTOMATION TIMING</p><h2>Schedules</h2><p>Control automatic checks safely. In this POC, scheduled emails still go only to Mailpit.</p></div>
+            <button class="secondary-button" id="refresh-schedules">Refresh schedules</button>
+          </div>
+          <div id="schedules-list" class="schedule-list"><div class="empty-state">Loading schedules...</div></div>
         </section>
 
         <section class="view" id="view-history">

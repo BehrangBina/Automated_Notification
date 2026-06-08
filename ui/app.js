@@ -2,6 +2,7 @@ const state = {
   contacts: [],
   deliveries: [],
   recipientGroups: [],
+  schedules: [],
   pendingSend: null,
   pendingDeleteContact: null,
   pendingDeleteGroup: null
@@ -115,12 +116,13 @@ function setBusy(form, busy) {
 function showView(name) {
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.view === name));
-  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", history: "Delivery history" };
+  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", schedules: "Schedules", history: "Delivery history" };
   $("#page-title").textContent = labels[name] || "Parman Automation";
   $(".sidebar").classList.remove("open");
   if (name === "overview") loadOverview();
   if (name === "birthdays") loadContacts();
   if (name === "groups") loadRecipientGroups();
+  if (name === "schedules") loadSchedules();
   if (name === "history") loadHistory();
   history.replaceState(null, "", `#${name}`);
 }
@@ -165,6 +167,33 @@ async function loadRecipientGroups() {
           <button class="delete-contact-button" type="button" data-delete-group="${escapeHtml(group.id)}">Delete</button>
         </div>
       </div>`).join("");
+  } catch (error) {
+    container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+async function loadSchedules() {
+  const container = $("#schedules-list");
+  try {
+    const data = await api("/api/schedules");
+    state.schedules = data.schedules || [];
+    if (!state.schedules.length) {
+      container.innerHTML = '<div class="empty-state">No schedules are configured yet.</div>';
+      return;
+    }
+    container.innerHTML = state.schedules.map(schedule => `
+      <article class="schedule-card">
+        <div>
+          <span class="status ${schedule.enabled ? "sent" : "queued"}">${schedule.enabled ? "enabled" : "disabled"}</span>
+          <h3>${escapeHtml(schedule.name)}</h3>
+          <p>${escapeHtml(schedule.description)}</p>
+          <small>Every ${escapeHtml(schedule.intervalMinutes)} minutes · Safe mode: ${schedule.safeMode ? "Mailpit only" : "off"}${schedule.nextRunEstimate ? ` · Next estimate: ${escapeHtml(new Date(schedule.nextRunEstimate).toLocaleString())}` : ""}</small>
+        </div>
+        <div class="schedule-actions">
+          <button class="secondary-button" type="button" data-run-schedule="${escapeHtml(schedule.id)}">Run check now</button>
+          <button class="${schedule.enabled ? "danger-button" : "primary-button"}" type="button" data-toggle-schedule="${escapeHtml(schedule.id)}" data-enabled="${schedule.enabled ? "false" : "true"}">${schedule.enabled ? "Disable" : "Enable"}</button>
+        </div>
+      </article>`).join("");
   } catch (error) {
     container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
@@ -540,6 +569,37 @@ $("#groups-list").addEventListener("click", event => {
   if (deleteButton) openDeleteGroup(deleteButton.dataset.deleteGroup);
 });
 
+$("#schedules-list").addEventListener("click", async event => {
+  const toggle = event.target.closest("[data-toggle-schedule]");
+  const run = event.target.closest("[data-run-schedule]");
+  if (toggle) {
+    toggle.disabled = true;
+    try {
+      const enabled = toggle.dataset.enabled === "true";
+      await api(`/api/schedules/${encodeURIComponent(toggle.dataset.toggleSchedule)}`, {
+        method: "POST",
+        body: JSON.stringify({ enabled })
+      });
+      toast(enabled ? "Schedule enabled." : "Schedule disabled.");
+      await loadSchedules();
+    } catch (error) {
+      toast(error.message, true);
+      toggle.disabled = false;
+    }
+  }
+  if (run) {
+    run.disabled = true;
+    try {
+      const result = await api("/api/birthdays/check", { method: "POST", body: JSON.stringify({ force: false }) });
+      toast(`Birthday check ran. Queued: ${result.queued || 0}.`);
+    } catch (error) {
+      toast(error.message, true);
+    } finally {
+      run.disabled = false;
+    }
+  }
+});
+
 $$(".apply-recipient-group").forEach(button => button.addEventListener("click", () => {
   const picker = button.closest(".group-picker");
   const groupId = $(".recipient-group-select", picker).value;
@@ -565,6 +625,7 @@ $("#send-preview-modal").addEventListener("click", event => {
   if (event.target === event.currentTarget) closeSendPreview();
 });
 $("#refresh-groups").addEventListener("click", loadRecipientGroups);
+$("#refresh-schedules").addEventListener("click", loadSchedules);
 $("#cancel-group-edit").addEventListener("click", resetRecipientGroupForm);
 $("#cancel-group-delete").addEventListener("click", closeDeleteGroup);
 $("#confirm-group-delete").addEventListener("click", deleteRecipientGroup);
@@ -587,4 +648,4 @@ $("#history-source").addEventListener("change", loadHistory);
 
 loadRecipientGroups();
 const initialView = location.hash.replace("#", "");
-showView(["overview", "meetings", "birthdays", "notifications", "groups", "history"].includes(initialView) ? initialView : "overview");
+showView(["overview", "meetings", "birthdays", "notifications", "groups", "schedules", "history"].includes(initialView) ? initialView : "overview");

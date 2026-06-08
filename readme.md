@@ -30,6 +30,8 @@ Recipient groups can be created once and reused in meeting, birthday, and notifi
 
 Meeting, birthday test, and notification sends require a preview confirmation before the API call is made.
 
+Schedules can be viewed and enabled/disabled from the dashboard. Checkpoint 10A controls the automatic birthday check.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
@@ -45,3 +47,8 @@ Checkpoint 9B recipient-group APIs:
 - `GET /api/recipient-groups`
 - `POST /api/recipient-groups`
 - `DELETE /api/recipient-groups/:id`
+
+Checkpoint 10A schedule APIs:
+
+- `GET /api/schedules`
+- `POST /api/schedules/:id`
