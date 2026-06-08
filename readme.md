@@ -24,8 +24,24 @@ The POC dashboard is served by Node-RED:
 
 It provides forms for meetings, birthday contacts, notifications, and delivery history.
 
+Birthday contacts can be created, edited, selected for a safe test, and deleted with confirmation.
+
+Recipient groups can be created once and reused in meeting, birthday, and notification forms.
+
+Meeting, birthday test, and notification sends require a preview confirmation before the API call is made.
+
 To redeploy the dashboard after rebuilding the Node-RED container:
 
 `powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
 
 The dashboard remains in safe POC mode: email is delivered to local Mailpit, not real recipients.
+
+Checkpoint 9A delete API:
+
+`DELETE /api/birthdays/contacts/:id`
+
+Checkpoint 9B recipient-group APIs:
+
+- `GET /api/recipient-groups`
+- `POST /api/recipient-groups`
+- `DELETE /api/recipient-groups/:id`

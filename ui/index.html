@@ -23,7 +23,8 @@
         <button class="nav-item" data-view="meetings"><span>02</span>Meetings</button>
         <button class="nav-item" data-view="birthdays"><span>03</span>Birthdays</button>
         <button class="nav-item" data-view="notifications"><span>04</span>Notifications</button>
-        <button class="nav-item" data-view="history"><span>05</span>Delivery history</button>
+        <button class="nav-item" data-view="groups"><span>05</span>Recipient groups</button>
+        <button class="nav-item" data-view="history"><span>06</span>Delivery history</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -73,7 +74,7 @@
             <button class="quick-card" data-go="meetings"><b>Meeting invite</b><span>Agenda, timezones, Zoom and calendar file</span></button>
             <button class="quick-card" data-go="birthdays"><b>Birthday contact</b><span>Save people and run a safe birthday test</span></button>
             <button class="quick-card" data-go="notifications"><b>Announcement</b><span>Persian or English branded notification</span></button>
-            <button class="quick-card" data-go="history"><b>Delivery history</b><span>Review status, duplicates and retry failures</span></button>
+            <button class="quick-card" data-go="groups"><b>Recipient groups</b><span>Reuse the same email lists across every message</span></button>
           </div>
         </section>
 
@@ -86,7 +87,7 @@
               <label><span>Meeting title</span><input name="title" required value="جلسه کارگروه نرم‌افزار پارمان" dir="rtl"></label>
               <label><span>Greeting</span><input name="greeting" required value="دوستان گرامی کارگروه نرم‌افزار" dir="rtl"></label>
               <label><span>Date</span><input name="date" type="date" required></label>
-              <label><span>Start time</span><input name="time" type="time" required value="11:00"></label>
+              <label><span>Start time <small>In selected source timezone</small></span><input name="time" type="time" required value="11:00"></label>
               <label><span>Source timezone</span><select name="timezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
               <label><span>Duration</span><select name="durationMinutes"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="75">75 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select></label>
             </div>
@@ -102,7 +103,11 @@
               <label><span>Organizer name</span><input name="organizerName" required value="مینا چنگیزی" dir="rtl"></label>
               <label><span>Organizer email</span><input name="organizerEmail" type="email" required value="mina@parman.local"></label>
             </div>
-            <label><span>Recipients <small>One email per line</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
+            <div class="group-picker">
+              <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
+              <button class="secondary-button apply-recipient-group" type="button" data-target-form="meeting-form" data-target-field="recipients">Add group recipients</button>
+            </div>
+            <label><span>Recipients <small>New line, comma, or semicolon</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
             <div class="form-actions">
               <p><strong>Safe mode:</strong> the invitation will appear in Mailpit.</p>
               <button class="primary-button" type="submit">Send test meeting invite</button>
@@ -125,7 +130,11 @@
                 <label><span>Local send hour</span><input name="sendHour" type="number" min="0" max="23" value="9" required></label>
               </div>
               <label><span>Timezone</span><select name="timezone"><option value="Australia/Melbourne">Melbourne</option><option value="Europe/Paris">Central Europe</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
-              <label><span>Recipient emails <small>One per line</small></span><textarea name="recipientEmails" rows="3" required>members@parman.local</textarea></label>
+              <div class="group-picker compact-picker">
+                <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
+                <button class="secondary-button apply-recipient-group" type="button" data-target-form="birthday-form" data-target-field="recipientEmails">Add group recipients</button>
+              </div>
+              <label><span>Recipient emails <small>New line, comma, or semicolon</small></span><textarea name="recipientEmails" rows="3" required>members@parman.local</textarea></label>
               <label class="checkbox"><input name="active" type="checkbox" checked><span>Active contact</span></label>
               <div class="form-actions">
                 <button type="button" class="text-button hidden" id="cancel-birthday-edit">Cancel edit</button>
@@ -155,7 +164,11 @@
 این یک پیام آزمایشی از سامانه اتوماسیون پارمان است.
 
 با سپاس از همراهی شما.</textarea></label>
-            <label><span>Recipients <small>One email per line</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
+            <div class="group-picker">
+              <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
+              <button class="secondary-button apply-recipient-group" type="button" data-target-form="notification-form" data-target-field="recipients">Add group recipients</button>
+            </div>
+            <label><span>Recipients <small>New line, comma, or semicolon</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
             <div class="form-grid two">
               <label><span>Button label <small>Optional</small></span><input name="actionLabel" placeholder="مشاهده جزئیات" dir="auto"></label>
               <label><span>Button URL <small>Optional</small></span><input name="actionUrl" type="url" placeholder="https://example.com"></label>
@@ -165,6 +178,29 @@
               <button class="primary-button" type="submit">Send test notification</button>
             </div>
           </form>
+        </section>
+
+        <section class="view" id="view-groups">
+          <div class="section-heading">
+            <div><p class="eyebrow">REUSABLE AUDIENCES</p><h2>Recipient groups</h2><p>Manage email lists once, then add them to meetings, birthday messages, or notifications.</p></div>
+          </div>
+          <div class="two-column">
+            <form class="form-card compact" id="recipient-group-form">
+              <input type="hidden" name="id">
+              <h3 id="recipient-group-form-title">Create a recipient group</h3>
+              <label><span>Group name</span><input name="name" required placeholder="Software Working Group"></label>
+              <label><span>Description <small>Optional</small></span><input name="description" placeholder="Members who receive software updates"></label>
+              <label><span>Email addresses <small>New line, comma, or semicolon</small></span><textarea name="emails" rows="7" required placeholder="person1@example.com; person2@example.com"></textarea></label>
+              <div class="form-actions">
+                <button type="button" class="text-button hidden" id="cancel-group-edit">Cancel edit</button>
+                <button class="primary-button" type="submit">Save recipient group</button>
+              </div>
+            </form>
+            <div class="panel">
+              <div class="panel-head"><h3>Saved groups</h3><button class="icon-button" id="refresh-groups">Refresh</button></div>
+              <div id="groups-list" class="group-list"><div class="empty-state">Loading recipient groups...</div></div>
+            </div>
+          </div>
         </section>
 
         <section class="view" id="view-history">
@@ -185,6 +221,44 @@
         </section>
       </div>
     </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="delete-contact-modal">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-contact-title">
+      <div class="confirm-icon">!</div>
+      <p class="eyebrow">CONFIRM DELETION</p>
+      <h2 id="delete-contact-title">Delete birthday contact?</h2>
+      <p id="delete-contact-message">This contact will be permanently removed.</p>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" id="cancel-contact-delete">Keep contact</button>
+        <button class="danger-button" type="button" id="confirm-contact-delete">Delete contact</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="delete-group-modal">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-group-title">
+      <div class="confirm-icon">!</div>
+      <p class="eyebrow">CONFIRM DELETION</p>
+      <h2 id="delete-group-title">Delete recipient group?</h2>
+      <p id="delete-group-message">This group will be permanently removed.</p>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" id="cancel-group-delete">Keep group</button>
+        <button class="danger-button" type="button" id="confirm-group-delete">Delete group</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop hidden" id="send-preview-modal">
+    <section class="confirm-dialog preview-dialog" role="dialog" aria-modal="true" aria-labelledby="send-preview-title">
+      <p class="eyebrow">REVIEW BEFORE SENDING</p>
+      <h2 id="send-preview-title">Confirm send</h2>
+      <div id="send-preview-body" class="preview-body"></div>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" id="cancel-send-preview">Go back and edit</button>
+        <button class="primary-button" type="button" id="confirm-send-preview">Confirm send to Mailpit</button>
+      </div>
+    </section>
   </div>
 
   <div class="toast" id="toast" role="status"></div>

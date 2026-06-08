@@ -1,10 +1,25 @@
-const state = { contacts: [], deliveries: [] };
+const state = {
+  contacts: [],
+  deliveries: [],
+  recipientGroups: [],
+  pendingSend: null,
+  pendingDeleteContact: null,
+  pendingDeleteGroup: null
+};
+
+if (location.port !== "1880") {
+  location.replace(`http://localhost:1880/app/${location.hash || "#overview"}`);
+}
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
 
 function splitLines(value) {
   return value.split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+}
+
+function splitEmails(value) {
+  return value.split(/[\r\n,;]+/).map(item => item.trim()).filter(Boolean);
 }
 
 function uniqueKey(prefix) {
@@ -18,6 +33,53 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function formatPreviewList(items) {
+  return `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function renderPreview(title, rows) {
+  return `
+    <div class="preview-title">${escapeHtml(title)}</div>
+    <dl>
+      ${rows.map(row => `
+        <div>
+          <dt>${escapeHtml(row.label)}</dt>
+          <dd>${Array.isArray(row.value) ? formatPreviewList(row.value) : escapeHtml(row.value || "Not provided")}</dd>
+        </div>`).join("")}
+    </dl>`;
+}
+
+function openSendPreview(title, rows, confirmLabel, onConfirm) {
+  state.pendingSend = { onConfirm };
+  $("#send-preview-title").textContent = title;
+  $("#send-preview-body").innerHTML = renderPreview(title, rows);
+  $("#confirm-send-preview").textContent = confirmLabel || "Confirm send to Mailpit";
+  $("#send-preview-modal").classList.remove("hidden");
+  $("#confirm-send-preview").focus();
+}
+
+function closeSendPreview() {
+  state.pendingSend = null;
+  $("#send-preview-modal").classList.add("hidden");
+}
+
+async function confirmPendingSend() {
+  if (!state.pendingSend) return;
+  const button = $("#confirm-send-preview");
+  const action = state.pendingSend.onConfirm;
+  button.disabled = true;
+  if (!button.dataset.label) button.dataset.label = button.textContent;
+  button.textContent = "Sending...";
+  try {
+    await action();
+    closeSendPreview();
+  } finally {
+    button.disabled = false;
+    button.textContent = button.dataset.label || "Confirm send to Mailpit";
+    delete button.dataset.label;
+  }
 }
 
 async function api(url, options = {}) {
@@ -53,13 +115,114 @@ function setBusy(form, busy) {
 function showView(name) {
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.view === name));
-  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", history: "Delivery history" };
+  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", history: "Delivery history" };
   $("#page-title").textContent = labels[name] || "Parman Automation";
   $(".sidebar").classList.remove("open");
   if (name === "overview") loadOverview();
   if (name === "birthdays") loadContacts();
+  if (name === "groups") loadRecipientGroups();
   if (name === "history") loadHistory();
   history.replaceState(null, "", `#${name}`);
+}
+
+function mergeEmails(current, added) {
+  return [...new Set([...splitEmails(current), ...added].map(email => email.toLowerCase()))].join("\n");
+}
+
+function renderGroupSelects() {
+  const options = [
+    '<option value="">Choose a saved group</option>',
+    ...state.recipientGroups.map(group =>
+      `<option value="${escapeHtml(group.id)}">${escapeHtml(group.name)} (${group.emails.length})</option>`
+    )
+  ].join("");
+  $$(".recipient-group-select").forEach(select => {
+    const selected = select.value;
+    select.innerHTML = options;
+    if (state.recipientGroups.some(group => group.id === selected)) select.value = selected;
+  });
+}
+
+async function loadRecipientGroups() {
+  const container = $("#groups-list");
+  try {
+    const data = await api("/api/recipient-groups");
+    state.recipientGroups = data.groups || [];
+    renderGroupSelects();
+    if (!state.recipientGroups.length) {
+      container.innerHTML = '<div class="empty-state">No recipient groups saved yet.</div>';
+      return;
+    }
+    container.innerHTML = state.recipientGroups.map(group => `
+      <div class="group-card">
+        <div>
+          <strong>${escapeHtml(group.name)}</strong>
+          <span>${escapeHtml(group.description || "No description")}</span>
+          <small>${escapeHtml(group.emails.join(", "))}</small>
+        </div>
+        <div class="contact-actions">
+          <button type="button" data-edit-group="${escapeHtml(group.id)}">Edit</button>
+          <button class="delete-contact-button" type="button" data-delete-group="${escapeHtml(group.id)}">Delete</button>
+        </div>
+      </div>`).join("");
+  } catch (error) {
+    container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function editRecipientGroup(id) {
+  const group = state.recipientGroups.find(item => item.id === id);
+  if (!group) return;
+  const form = $("#recipient-group-form");
+  form.elements.id.value = group.id;
+  form.elements.name.value = group.name;
+  form.elements.description.value = group.description || "";
+  form.elements.emails.value = group.emails.join("\n");
+  $("#recipient-group-form-title").textContent = "Edit recipient group";
+  $("#cancel-group-edit").classList.remove("hidden");
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetRecipientGroupForm() {
+  const form = $("#recipient-group-form");
+  form.reset();
+  form.elements.id.value = "";
+  $("#recipient-group-form-title").textContent = "Create a recipient group";
+  $("#cancel-group-edit").classList.add("hidden");
+}
+
+function openDeleteGroup(id) {
+  const group = state.recipientGroups.find(item => item.id === id);
+  if (!group) return;
+  state.pendingDeleteGroup = group;
+  $("#delete-group-message").textContent = `${group.name} and its ${group.emails.length} saved email address(es) will be removed.`;
+  $("#delete-group-modal").classList.remove("hidden");
+  $("#confirm-group-delete").focus();
+}
+
+function closeDeleteGroup() {
+  state.pendingDeleteGroup = null;
+  $("#delete-group-modal").classList.add("hidden");
+}
+
+async function deleteRecipientGroup() {
+  const group = state.pendingDeleteGroup;
+  if (!group) return;
+  const button = $("#confirm-group-delete");
+  button.disabled = true;
+  button.textContent = "Deleting...";
+  try {
+    await api(`/api/recipient-groups/${encodeURIComponent(group.id)}`, { method: "DELETE" });
+    if ($("#recipient-group-form").elements.id.value === group.id) resetRecipientGroupForm();
+    closeDeleteGroup();
+    toast(`${group.name} was deleted.`);
+    await loadRecipientGroups();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Delete group";
+  }
 }
 
 async function loadOverview() {
@@ -94,7 +257,10 @@ async function loadContacts() {
       <div class="contact-card">
         <input class="contact-select" type="checkbox" value="${escapeHtml(contact.id)}" aria-label="Select ${escapeHtml(contact.name)}">
         <div><strong>${escapeHtml(contact.name)}</strong><span>${escapeHtml(contact.birthday)} · ${escapeHtml(contact.timezone)} · ${escapeHtml(contact.sendHour)}:00 · ${contact.active ? "Active" : "Inactive"}</span></div>
-        <button type="button" data-edit-contact="${escapeHtml(contact.id)}">Edit</button>
+        <div class="contact-actions">
+          <button type="button" data-edit-contact="${escapeHtml(contact.id)}">Edit</button>
+          <button class="delete-contact-button" type="button" data-delete-contact="${escapeHtml(contact.id)}">Delete</button>
+        </div>
       </div>`).join("");
   } catch (error) {
     container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
@@ -127,6 +293,40 @@ function resetBirthdayForm() {
   form.elements.active.checked = true;
   $("#birthday-form-title").textContent = "Add a birthday contact";
   $("#cancel-birthday-edit").classList.add("hidden");
+}
+
+function openDeleteContact(id) {
+  const contact = state.contacts.find(item => item.id === id);
+  if (!contact) return;
+  state.pendingDeleteContact = contact;
+  $("#delete-contact-message").textContent = `${contact.name} will be permanently removed from birthday automation.`;
+  $("#delete-contact-modal").classList.remove("hidden");
+  $("#confirm-contact-delete").focus();
+}
+
+function closeDeleteContact() {
+  state.pendingDeleteContact = null;
+  $("#delete-contact-modal").classList.add("hidden");
+}
+
+async function deleteContact() {
+  const contact = state.pendingDeleteContact;
+  if (!contact) return;
+  const button = $("#confirm-contact-delete");
+  button.disabled = true;
+  button.textContent = "Deleting...";
+  try {
+    await api(`/api/birthdays/contacts/${encodeURIComponent(contact.id)}`, { method: "DELETE" });
+    if ($("#birthday-form").elements.id.value === contact.id) resetBirthdayForm();
+    closeDeleteContact();
+    toast(`${contact.name} was deleted.`);
+    await Promise.all([loadContacts(), loadOverview()]);
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Delete contact";
+  }
 }
 
 async function loadHistory() {
@@ -163,7 +363,6 @@ async function loadHistory() {
 $("#meeting-form").addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget;
-  setBusy(form, true);
   const values = Object.fromEntries(new FormData(form));
   const payload = {
     title: values.title,
@@ -178,7 +377,7 @@ $("#meeting-form").addEventListener("submit", async event => {
     passcode: values.passcode,
     idempotencyKey: uniqueKey("meeting"),
     organizer: { name: values.organizerName, email: values.organizerEmail },
-    recipients: splitLines(values.recipients),
+    recipients: splitEmails(values.recipients),
     displayTimezones: [
       { label: "اروپای مرکزی", timezone: "Europe/Paris" },
       { label: "ملبورن", timezone: "Australia/Melbourne" },
@@ -186,14 +385,22 @@ $("#meeting-form").addEventListener("submit", async event => {
       { label: "نیویورک", timezone: "America/New_York" }
     ]
   };
-  try {
-    await api("/api/meetings/send", { method: "POST", body: JSON.stringify(payload) });
-    toast("Meeting invitation sent to Mailpit successfully.");
-  } catch (error) {
-    toast(error.message, true);
-  } finally {
-    setBusy(form, false);
-  }
+  openSendPreview("Review meeting invite", [
+    { label: "Subject", value: `دعوت‌نامه: ${payload.title}` },
+    { label: "Recipients", value: payload.recipients },
+    { label: "Date", value: payload.date },
+    { label: "Start time", value: `${payload.time} in ${payload.timezone}` },
+    { label: "Duration", value: `${payload.durationMinutes} minutes` },
+    { label: "Agenda", value: payload.agenda }
+  ], "Confirm meeting send", async () => {
+    try {
+      await api("/api/meetings/send", { method: "POST", body: JSON.stringify(payload) });
+      toast("Meeting invitation sent to Mailpit successfully.");
+    } catch (error) {
+      toast(error.message, true);
+      throw error;
+    }
+  });
 });
 
 $("#birthday-form").addEventListener("submit", async event => {
@@ -207,7 +414,7 @@ $("#birthday-form").addEventListener("submit", async event => {
     birthday: values.birthday,
     timezone: values.timezone,
     sendHour: Number(values.sendHour),
-    recipientEmails: splitLines(values.recipientEmails),
+    recipientEmails: splitEmails(values.recipientEmails),
     active: form.elements.active.checked
   };
   try {
@@ -223,31 +430,57 @@ $("#birthday-form").addEventListener("submit", async event => {
   }
 });
 
+$("#recipient-group-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true);
+  const values = Object.fromEntries(new FormData(form));
+  const payload = {
+    id: values.id || undefined,
+    name: values.name,
+    description: values.description,
+    emails: splitEmails(values.emails)
+  };
+  try {
+    await api("/api/recipient-groups", { method: "POST", body: JSON.stringify(payload) });
+    toast(values.id ? "Recipient group updated." : "Recipient group saved.");
+    resetRecipientGroupForm();
+    await loadRecipientGroups();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    setBusy(form, false);
+  }
+});
+
 $("#run-birthday-test").addEventListener("click", async event => {
   const selected = $$(".contact-select:checked").map(input => input.value);
   if (!selected.length) {
     toast("Select at least one birthday contact first.", true);
     return;
   }
-  const button = event.currentTarget;
-  button.disabled = true;
-  try {
-    const result = await api("/api/birthdays/check", {
-      method: "POST",
-      body: JSON.stringify({ force: true, contactIds: selected, idempotencyKey: uniqueKey("birthday-test") })
-    });
-    toast(`${result.queuedContacts?.length || 0} birthday contact(s) sent to Mailpit.`);
-  } catch (error) {
-    toast(error.message, true);
-  } finally {
-    button.disabled = false;
-  }
+  const contacts = selected.map(id => state.contacts.find(contact => contact.id === id)).filter(Boolean);
+  openSendPreview("Review birthday test", [
+    { label: "Selected contacts", value: contacts.map(contact => contact.name) },
+    { label: "Recipients", value: [...new Set(contacts.flatMap(contact => contact.recipientEmails || []))] },
+    { label: "Mode", value: "Forced safe test to Mailpit" }
+  ], "Confirm birthday test", async () => {
+    try {
+      const result = await api("/api/birthdays/check", {
+        method: "POST",
+        body: JSON.stringify({ force: true, contactIds: selected, idempotencyKey: uniqueKey("birthday-test") })
+      });
+      toast(`${result.queuedContacts?.length || 0} birthday contact(s) sent to Mailpit.`);
+    } catch (error) {
+      toast(error.message, true);
+      throw error;
+    }
+  });
 });
 
 $("#notification-form").addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget;
-  setBusy(form, true);
   const values = Object.fromEntries(new FormData(form));
   const action = values.actionLabel && values.actionUrl ? { label: values.actionLabel, url: values.actionUrl } : undefined;
   const payload = {
@@ -256,19 +489,27 @@ $("#notification-form").addEventListener("submit", async event => {
     subject: values.subject,
     title: values.title,
     message: values.message,
-    recipients: splitLines(values.recipients),
+    recipients: splitEmails(values.recipients),
     channels: ["email"],
     idempotencyKey: uniqueKey("notification"),
     action
   };
-  try {
-    await api("/api/notifications/send", { method: "POST", body: JSON.stringify(payload) });
-    toast("Notification sent to Mailpit successfully.");
-  } catch (error) {
-    toast(error.message, true);
-  } finally {
-    setBusy(form, false);
-  }
+  openSendPreview("Review notification", [
+    { label: "Subject", value: payload.subject },
+    { label: "Headline", value: payload.title },
+    { label: "Recipients", value: payload.recipients },
+    { label: "Language", value: payload.language },
+    { label: "Type", value: payload.type },
+    { label: "Message", value: payload.message }
+  ], "Confirm notification send", async () => {
+    try {
+      await api("/api/notifications/send", { method: "POST", body: JSON.stringify(payload) });
+      toast("Notification sent to Mailpit successfully.");
+    } catch (error) {
+      toast(error.message, true);
+      throw error;
+    }
+  });
 });
 
 $("#history-body").addEventListener("click", async event => {
@@ -286,18 +527,64 @@ $("#history-body").addEventListener("click", async event => {
 });
 
 $("#contacts-list").addEventListener("click", event => {
-  const button = event.target.closest("[data-edit-contact]");
-  if (button) editContact(button.dataset.editContact);
+  const editButton = event.target.closest("[data-edit-contact]");
+  const deleteButton = event.target.closest("[data-delete-contact]");
+  if (editButton) editContact(editButton.dataset.editContact);
+  if (deleteButton) openDeleteContact(deleteButton.dataset.deleteContact);
 });
+
+$("#groups-list").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit-group]");
+  const deleteButton = event.target.closest("[data-delete-group]");
+  if (editButton) editRecipientGroup(editButton.dataset.editGroup);
+  if (deleteButton) openDeleteGroup(deleteButton.dataset.deleteGroup);
+});
+
+$$(".apply-recipient-group").forEach(button => button.addEventListener("click", () => {
+  const picker = button.closest(".group-picker");
+  const groupId = $(".recipient-group-select", picker).value;
+  const group = state.recipientGroups.find(item => item.id === groupId);
+  if (!group) {
+    toast("Choose a recipient group first.", true);
+    return;
+  }
+  const form = document.getElementById(button.dataset.targetForm);
+  const field = form.elements[button.dataset.targetField];
+  field.value = mergeEmails(field.value, group.emails);
+  toast(`${group.name} recipients added.`);
+}));
 
 $$(".nav-item").forEach(button => button.addEventListener("click", () => showView(button.dataset.view)));
 $$("[data-go]").forEach(button => button.addEventListener("click", () => showView(button.dataset.go)));
 $("#mobile-menu").addEventListener("click", () => $(".sidebar").classList.toggle("open"));
 $("#refresh-contacts").addEventListener("click", loadContacts);
 $("#cancel-birthday-edit").addEventListener("click", resetBirthdayForm);
+$("#cancel-send-preview").addEventListener("click", closeSendPreview);
+$("#confirm-send-preview").addEventListener("click", confirmPendingSend);
+$("#send-preview-modal").addEventListener("click", event => {
+  if (event.target === event.currentTarget) closeSendPreview();
+});
+$("#refresh-groups").addEventListener("click", loadRecipientGroups);
+$("#cancel-group-edit").addEventListener("click", resetRecipientGroupForm);
+$("#cancel-group-delete").addEventListener("click", closeDeleteGroup);
+$("#confirm-group-delete").addEventListener("click", deleteRecipientGroup);
+$("#delete-group-modal").addEventListener("click", event => {
+  if (event.target === event.currentTarget) closeDeleteGroup();
+});
+$("#cancel-contact-delete").addEventListener("click", closeDeleteContact);
+$("#confirm-contact-delete").addEventListener("click", deleteContact);
+$("#delete-contact-modal").addEventListener("click", event => {
+  if (event.target === event.currentTarget) closeDeleteContact();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !$("#send-preview-modal").classList.contains("hidden")) closeSendPreview();
+  if (event.key === "Escape" && !$("#delete-contact-modal").classList.contains("hidden")) closeDeleteContact();
+  if (event.key === "Escape" && !$("#delete-group-modal").classList.contains("hidden")) closeDeleteGroup();
+});
 $("#refresh-history").addEventListener("click", loadHistory);
 $("#history-status").addEventListener("change", loadHistory);
 $("#history-source").addEventListener("change", loadHistory);
 
+loadRecipientGroups();
 const initialView = location.hash.replace("#", "");
-showView(["overview", "meetings", "birthdays", "notifications", "history"].includes(initialView) ? initialView : "overview");
+showView(["overview", "meetings", "birthdays", "notifications", "groups", "history"].includes(initialView) ? initialView : "overview");
