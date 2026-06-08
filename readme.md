@@ -1,90 +1,228 @@
-# How to
+# Parman Automated Notification POC
 
-## Install docker desktop
+Node-RED proof of concept for safe local automation:
 
-## Install Node-Red
+- meeting invitations
+- birthday greetings
+- notifications
+- recipient groups
+- meeting reminders
+- schedules and run logs
+- delivery history and retry support
+- backup/restore
+- safe-mode settings and SMTP readiness planning
 
-`docker run -d --name parman-node-red -p 1880:1880 -v parman_nodered_data:/data --restart unless-stopped nodered/node-red:latest`
+All email is sent to local Mailpit. Real email is intentionally disabled.
 
-Node-Red will be on: [http://localhost:1880](http://localhost:1880)
+## Current Status
 
-## Install mail pit
+This repo contains the dashboard files, templates, examples, and Node-RED deployment scripts.
 
-`docker run -d --name parman-mailpit -p 8025:8025 -p 1025:1025 --restart unless-stopped axllent/mailpit:latest`
+Important: this is not yet a one-command fresh install package. A fresh PC can run it, but the Node-RED flows must be deployed by running the checkpoint scripts in order.
 
-Mailpit: will be [http://localhost:8025](http://localhost:8025.)
+The future improvement would be a `docker-compose.yml` plus one `setup.ps1` script.
 
-## send our first test email from Node-RED into Mailpit
+## Requirements
 
-## Local dashboard
+- Windows 10/11
+- Docker Desktop
+- Git
+- PowerShell
+- Internet access for the first Docker image download
 
-The POC dashboard is served by Node-RED:
+## Fresh PC Setup
 
-[http://localhost:1880/app/](http://localhost:1880/app/)
+Clone the repo:
 
-It provides forms for meetings, birthday contacts, notifications, and delivery history.
+```powershell
+git clone https://github.com/BehrangBina/Automated_Notification.git
+cd Automated_Notification
+```
 
-Birthday contacts can be created, edited, selected for a safe test, and deleted with confirmation.
+Start Node-RED:
 
-Recipient groups can be created once and reused in meeting, birthday, and notification forms.
+```powershell
+docker run -d --name parman-node-red -p 1880:1880 -v parman_nodered_data:/data --restart unless-stopped nodered/node-red:latest
+```
 
-Meeting, birthday test, and notification sends require a preview confirmation before the API call is made.
+Start Mailpit:
 
-Schedules can be viewed and enabled/disabled from the dashboard. Checkpoint 10A controls the automatic birthday check.
+```powershell
+docker run -d --name parman-mailpit -p 8025:8025 -p 1025:1025 --restart unless-stopped axllent/mailpit:latest
+```
 
-Meeting reminders can be scheduled from the dashboard and are sent once when due.
+Open:
 
-Schedule run logs show when birthday checks and meeting-reminder checks ran, whether they were manual or automatic, and a compact summary of what happened.
+- Node-RED: http://localhost:1880
+- Mailpit: http://localhost:8025
 
-Safety settings show the current safe-mode configuration and production-readiness checklist. Checkpoint 11A does not enable live email.
+## Deploy The POC Flows
 
-Backups can be exported and restored as JSON. Restore keeps live email disabled and routes email to Mailpit.
+Run these scripts from the repo folder in PowerShell.
 
-Send guardrails require preview approval and the `SEND TO MAILPIT` phrase before test emails are accepted from the dashboard.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint4.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint5.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint6a.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint6b.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint6c.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint7.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint9a.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint9b.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint10a.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint10b.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint10c.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint11a.ps1
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint11b.ps1
+```
 
-SMTP readiness fields are planning metadata only. Do not store SMTP passwords or API keys in the dashboard; future secrets should come from Docker or Node-RED environment variables.
+Then open the dashboard:
 
-The demo and handoff guide is in `docs/demo-guide.md`.
+```text
+http://localhost:1880/app/?v=latest#overview
+```
 
-To redeploy the dashboard after rebuilding the Node-RED container:
+If the dashboard looks old, press `Ctrl + F5`.
 
-`powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1`
+## Demo Guide
 
-The dashboard remains in safe POC mode: email is delivered to local Mailpit, not real recipients.
+The handoff/demo guide is here:
 
-Checkpoint 9A delete API:
+```text
+docs/demo-guide.md
+```
 
-`DELETE /api/birthdays/contacts/:id`
+Suggested demo path:
 
-Checkpoint 9B recipient-group APIs:
+1. Open Settings and show safe mode.
+2. Show SMTP readiness planning and the “no password in UI” rule.
+3. Create or select a recipient group.
+4. Send a meeting invite.
+5. In the preview modal, type `SEND TO MAILPIT`.
+6. Open Mailpit and show the email.
+7. Show birthdays, notifications, schedules, run logs, delivery history, and backup/restore.
+
+## Safe Mode
+
+The dashboard remains in safe POC mode:
+
+- email goes to local Mailpit
+- real email is disabled
+- SMTP settings are planning metadata only
+- SMTP passwords/API keys must not be stored in the dashboard
+- send previews require the `SEND TO MAILPIT` phrase
+
+## Dashboard Features
+
+- Meetings: Persian/English content, Zoom details, timezone display, calendar attachment
+- Birthdays: saved contacts, local timezone/send hour, safe test sends
+- Notifications: branded Persian/English messages
+- Recipient groups: reusable email lists
+- Schedules: automatic birthday check controls
+- Meeting reminders: one-time scheduled reminder emails
+- Run logs: manual/automatic schedule checks
+- Delivery history: sent/failed/queued/duplicates/retry
+- Settings: safe mode, SMTP readiness planning, backup/restore
+
+## Useful URLs
+
+- Dashboard: http://localhost:1880/app/
+- Node-RED editor: http://localhost:1880
+- Mailpit: http://localhost:8025
+- Delivery history: http://localhost:1880/delivery-history
+
+## API Summary
+
+Birthday contacts:
+
+- `GET /api/birthdays/contacts`
+- `POST /api/birthdays/contacts`
+- `DELETE /api/birthdays/contacts/:id`
+- `POST /api/birthdays/check`
+
+Meetings:
+
+- `POST /api/meetings/send`
+
+Notifications:
+
+- `POST /api/notifications/send`
+
+Recipient groups:
 
 - `GET /api/recipient-groups`
 - `POST /api/recipient-groups`
 - `DELETE /api/recipient-groups/:id`
 
-Checkpoint 10A schedule APIs:
+Schedules:
 
 - `GET /api/schedules`
 - `POST /api/schedules/:id`
 
-Checkpoint 10B meeting-reminder APIs:
+Meeting reminders:
 
 - `GET /api/meeting-reminders`
 - `POST /api/meeting-reminders`
 - `DELETE /api/meeting-reminders/:id`
 - `POST /api/meeting-reminders/check`
 
-Checkpoint 10C schedule-run log APIs:
+Schedule run logs:
 
 - `GET /api/schedule-runs`
 - `DELETE /api/schedule-runs`
 
-Checkpoint 11A safety settings APIs:
+Delivery history:
+
+- `GET /api/deliveries`
+- `POST /api/deliveries/:id/retry`
+
+Settings:
 
 - `GET /api/settings`
 - `POST /api/settings`
 
-Checkpoint 11B backup APIs:
+Backups:
 
 - `GET /api/backups/export`
 - `POST /api/backups/restore`
+
+## Troubleshooting
+
+If containers already exist:
+
+```powershell
+docker restart parman-node-red
+docker restart parman-mailpit
+```
+
+If ports are already in use:
+
+- Node-RED uses port `1880`
+- Mailpit web UI uses port `8025`
+- Mailpit SMTP uses port `1025`
+
+If the dashboard does not update:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy-checkpoint8.ps1
+```
+
+Then open:
+
+```text
+http://localhost:1880/app/?v=latest#settings
+```
+
+and press `Ctrl + F5`.
+
+## Known Packaging Gap
+
+The repo is shareable, but not yet fully packaged for one-command setup.
+
+Recommended next packaging work:
+
+- add `docker-compose.yml`
+- add `setup.ps1`
+- make setup deploy all flows automatically
+- verify from a fresh Docker volume
