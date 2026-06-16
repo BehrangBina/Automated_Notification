@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $templatePath = Join-Path $scriptRoot "templates\notification.html"
@@ -90,12 +90,12 @@ const styles = {
 };
 const labels = {
     fa: {
-        info: 'اطلاعیه',
-        success: 'خبر و به‌روزرسانی',
-        warning: 'یادآوری مهم',
-        urgent: 'اطلاعیه فوری',
-        organization: 'روابط عمومی پارمان پادشاهی ایرانیان',
-        footer: 'این پیام به‌صورت خودکار توسط سامانه اتوماسیون پارمان ارسال شده است.'
+        info: '\u0627\u0637\u0644\u0627\u0639\u06CC\u0647',
+        success: '\u062E\u0628\u0631 \u0648 \u0628\u0647\u200C\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06CC',
+        warning: '\u06CC\u0627\u062F\u0622\u0648\u0631\u06CC \u0645\u0647\u0645',
+        urgent: '\u0627\u0637\u0644\u0627\u0639\u06CC\u0647 \u0641\u0648\u0631\u06CC',
+        organization: '\u0631\u0648\u0627\u0628\u0637 \u0639\u0645\u0648\u0645\u06CC \u067E\u0627\u0631\u0645\u0627\u0646 \u067E\u0627\u062F\u0634\u0627\u0647\u06CC \u0627\u06CC\u0631\u0627\u0646\u06CC\u0627\u0646',
+        footer: '\u0627\u06CC\u0646 \u067E\u06CC\u0627\u0645 \u0628\u0647\u200C\u0635\u0648\u0631\u062A \u062E\u0648\u062F\u06A9\u0627\u0631 \u062A\u0648\u0633\u0637 \u0633\u0627\u0645\u0627\u0646\u0647 \u0627\u062A\u0648\u0645\u0627\u0633\u06CC\u0648\u0646 \u067E\u0627\u0631\u0645\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0634\u062F\u0647 \u0627\u0633\u062A.'
     },
     en: {
         info: 'Information',
