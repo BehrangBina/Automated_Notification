@@ -84,7 +84,8 @@ $scripts = @(
     "deploy-checkpoint10b.ps1",
     "deploy-checkpoint10c.ps1",
     "deploy-checkpoint11a.ps1",
-    "deploy-checkpoint11b.ps1"
+    "deploy-checkpoint11b.ps1",
+    "deploy-checkpoint12a.ps1"
 )
 
 Write-Step "Deploying Node-RED POC flows and dashboard"

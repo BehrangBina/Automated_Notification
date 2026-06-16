@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $templatePath = Join-Path $scriptRoot "templates\notification.html"
@@ -65,11 +65,11 @@ if (
     input.channels !== undefined &&
     (
         !Array.isArray(input.channels) ||
-        input.channels.length !== 1 ||
-        input.channels[0] !== 'email'
+        input.channels.length === 0 ||
+        input.channels.some(function(ch) { return ch !== 'email' && ch !== 'telegram'; })
     )
 ) {
-    errors.push('this POC currently supports channels: ["email"]');
+    errors.push('channels must be an array containing email and/or telegram');
 }
 
 if (errors.length) {
@@ -90,12 +90,12 @@ const styles = {
 };
 const labels = {
     fa: {
-        info: 'اطلاعیه',
-        success: 'خبر و به‌روزرسانی',
-        warning: 'یادآوری مهم',
-        urgent: 'اطلاعیه فوری',
-        organization: 'روابط عمومی پارمان پادشاهی ایرانیان',
-        footer: 'این پیام به‌صورت خودکار توسط سامانه اتوماسیون پارمان ارسال شده است.'
+        info: '\u0627\u0637\u0644\u0627\u0639\u06CC\u0647',
+        success: '\u062E\u0628\u0631 \u0648 \u0628\u0647\u200C\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06CC',
+        warning: '\u06CC\u0627\u062F\u0622\u0648\u0631\u06CC \u0645\u0647\u0645',
+        urgent: '\u0627\u0637\u0644\u0627\u0639\u06CC\u0647 \u0641\u0648\u0631\u06CC',
+        organization: '\u0631\u0648\u0627\u0628\u0637 \u0639\u0645\u0648\u0645\u06CC \u067E\u0627\u0631\u0645\u0627\u0646 \u067E\u0627\u062F\u0634\u0627\u0647\u06CC \u0627\u06CC\u0631\u0627\u0646\u06CC\u0627\u0646',
+        footer: '\u0627\u06CC\u0646 \u067E\u06CC\u0627\u0645 \u0628\u0647\u200C\u0635\u0648\u0631\u062A \u062E\u0648\u062F\u06A9\u0627\u0631 \u062A\u0648\u0633\u0637 \u0633\u0627\u0645\u0627\u0646\u0647 \u0627\u062A\u0648\u0645\u0627\u0633\u06CC\u0648\u0646 \u067E\u0627\u0631\u0645\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0634\u062F\u0647 \u0627\u0633\u062A.'
     },
     en: {
         info: 'Information',
@@ -152,6 +152,40 @@ const emailMessage = {
 delete emailMessage.req;
 delete emailMessage.res;
 
+const channels = Array.isArray(input.channels) ? input.channels : ['email'];
+const emailOutput = channels.includes('email') ? emailMessage : null;
+
+let telegramOutput = null;
+if (channels.includes('telegram')) {
+    const appSettings = global.get('appSettings') || {};
+    const tg = appSettings.telegram || {};
+    const botToken = tg.botToken || '';
+    const chatId = tg.defaultChatId || '';
+    if (botToken && chatId) {
+        const tgEmoji = { info: '\u2139\uFE0F', success: '\u2705', warning: '\u26A0\uFE0F', urgent: '\uD83D\uDEA8' };
+        const tgOrg = { fa: '\uD83D\uDCE3 \u0631\u0648\u0627\u0628\u0637 \u0639\u0645\u0648\u0645\u06CC \u067E\u0627\u0631\u0645\u0627\u0646', en: '\uD83D\uDCE3 Parman Public Relations' };
+        const tgLines = [];
+        tgLines.push(tgEmoji[type] + ' <b>' + escapeHtml(input.subject.trim()) + '</b>');
+        tgLines.push('<i>' + escapeHtml(input.title.trim()) + '</i>');
+        tgLines.push('\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
+        paragraphs
+            .filter(function(p) { return String(p).trim(); })
+            .forEach(function(p) { tgLines.push(escapeHtml(String(p).trim())); });
+        if (input.action) {
+            tgLines.push('');
+            tgLines.push('\uD83D\uDD17 <a href="' + escapeHtml(input.action.url) + '">' + escapeHtml(input.action.label) + '</a>');
+        }
+        tgLines.push('');
+        tgLines.push('<i>' + (tgOrg[language] || tgOrg['en']) + '</i>');
+        telegramOutput = {
+            url: 'https://api.telegram.org/bot' + botToken + '/sendMessage',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            payload: JSON.stringify({ chat_id: chatId, text: tgLines.join('\n'), parse_mode: 'HTML', link_preview_options: { is_disabled: true } })
+        };
+    }
+}
+
 const response = {
     ...msg,
     statusCode: 202,
@@ -164,12 +198,12 @@ const response = {
             language,
             type,
             recipients: emailMessage.to.split(','),
-            channel: 'email',
+            channels,
             hasAction: Boolean(input.action)
         }
     }
 };
-return [emailMessage, response];
+return [emailOutput, response, telegramOutput];
 '@
 $functionCode = $functionCode.Replace("__HTML_TEMPLATE_JSON__", $htmlTemplateJson)
 $functionCode = $functionCode.Replace("__LOGO_BASE64__", $logoBase64)
@@ -211,7 +245,7 @@ $nodes = @(
         z = "checkpoint6c-tab"
         name = "Validate and build notification"
         func = $functionCode
-        outputs = 2
+        outputs = 3
         timeout = 0
         noerr = 0
         initialize = ""
@@ -221,7 +255,8 @@ $nodes = @(
         y = 140
         wires = @(
             @("checkpoint6c-email"),
-            @("checkpoint6c-response")
+            @("checkpoint6c-response"),
+            @("checkpoint6c-telegram-send")
         )
     },
     @{
@@ -250,6 +285,26 @@ $nodes = @(
         headers = @{}
         x = 750
         y = 180
+        wires = @()
+    },
+    @{
+        id = "checkpoint6c-telegram-send"
+        type = "http request"
+        z = "checkpoint6c-tab"
+        name = "Send to Telegram"
+        method = "POST"
+        ret = "obj"
+        paytoqs = "ignore"
+        url = ""
+        tls = ""
+        persist = $false
+        proxy = ""
+        insecureHTTPParser = $false
+        authType = ""
+        senderr = $false
+        headers = @()
+        x = 750
+        y = 250
         wires = @()
     }
 )

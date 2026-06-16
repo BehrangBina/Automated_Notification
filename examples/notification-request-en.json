@@ -12,7 +12,8 @@
     "members@parman.local"
   ],
   "channels": [
-    "email"
+    "email",
+    "telegram"
   ],
   "action": {
     "label": "View update",
