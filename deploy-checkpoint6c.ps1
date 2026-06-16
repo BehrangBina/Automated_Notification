@@ -162,18 +162,26 @@ if (channels.includes('telegram')) {
     const botToken = tg.botToken || '';
     const chatId = tg.defaultChatId || '';
     if (botToken && chatId) {
-        const tgParts = ['<b>' + escapeHtml(input.subject.trim()) + '</b>'];
+        const tgEmoji = { info: '\u2139\uFE0F', success: '\u2705', warning: '\u26A0\uFE0F', urgent: '\uD83D\uDEA8' };
+        const tgOrg = { fa: '\uD83D\uDCE3 \u0631\u0648\u0627\u0628\u0637 \u0639\u0645\u0648\u0645\u06CC \u067E\u0627\u0631\u0645\u0627\u0646', en: '\uD83D\uDCE3 Parman Public Relations' };
+        const tgLines = [];
+        tgLines.push(tgEmoji[type] + ' <b>' + escapeHtml(input.subject.trim()) + '</b>');
+        tgLines.push('<i>' + escapeHtml(input.title.trim()) + '</i>');
+        tgLines.push('\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500');
         paragraphs
             .filter(function(p) { return String(p).trim(); })
-            .forEach(function(p) { tgParts.push(escapeHtml(String(p).trim())); });
+            .forEach(function(p) { tgLines.push(escapeHtml(String(p).trim())); });
         if (input.action) {
-            tgParts.push('<a href="' + escapeHtml(input.action.url) + '">' + escapeHtml(input.action.label) + '</a>');
+            tgLines.push('');
+            tgLines.push('\uD83D\uDD17 <a href="' + escapeHtml(input.action.url) + '">' + escapeHtml(input.action.label) + '</a>');
         }
+        tgLines.push('');
+        tgLines.push('<i>' + (tgOrg[language] || tgOrg['en']) + '</i>');
         telegramOutput = {
             url: 'https://api.telegram.org/bot' + botToken + '/sendMessage',
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            payload: JSON.stringify({ chat_id: chatId, text: tgParts.join('\n\n'), parse_mode: 'HTML' })
+            payload: JSON.stringify({ chat_id: chatId, text: tgLines.join('\n'), parse_mode: 'HTML', link_preview_options: { is_disabled: true } })
         };
     }
 }
