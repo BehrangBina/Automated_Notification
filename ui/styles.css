@@ -32,11 +32,68 @@ button, select { cursor: pointer; }
 .nav-item span { width: 26px; color: #7295ab; font-size: 11px; font-weight: 800; }
 .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.1); color: #fff; }
 .nav-item.active span { color: #f0d784; }
+.lang-toggle { display: flex; gap: 6px; padding: 10px 8px 0; }
+.lang-btn { flex: 1; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 6px 0; background: transparent; color: #a8c3d3; font-size: 12px; font-weight: 700; }
+.lang-btn.active { background: rgba(255,255,255,.15); color: #fff; border-color: rgba(255,255,255,.4); }
+.lang-btn:hover:not(.active) { background: rgba(255,255,255,.08); }
 .sidebar-footer { margin-top: auto; padding: 14px 10px; display: flex; align-items: center; gap: 10px; border-radius: 10px; background: rgba(255,255,255,.07); }
 .sidebar-footer strong, .sidebar-footer span { display: block; }
 .sidebar-footer strong { font-size: 12px; }
 .sidebar-footer span { margin-top: 2px; color: #a8c3d3; font-size: 11px; }
 .mode-dot { width: 9px; height: 9px; border-radius: 50%; background: #4fd18b; box-shadow: 0 0 0 4px rgba(79,209,139,.12); }
+
+/* RTL layout overrides */
+[dir="rtl"] .nav-item { text-align: right; flex-direction: row-reverse; }
+[dir="rtl"] .nav-item span { text-align: left; }
+[dir="rtl"] .topbar { flex-direction: row-reverse; }
+[dir="rtl"] .topbar-brand { flex-direction: row-reverse; }
+[dir="rtl"] .topbar-actions { flex-direction: row-reverse; }
+[dir="rtl"] .section-heading { direction: rtl; }
+[dir="rtl"] .section-heading.split { flex-direction: row-reverse; }
+[dir="rtl"] .two-column { direction: rtl; }
+[dir="rtl"] .form-card, [dir="rtl"] .panel { direction: rtl; text-align: right; }
+[dir="rtl"] label { text-align: right; }
+[dir="rtl"] .form-actions { flex-direction: row-reverse; }
+[dir="rtl"] .form-grid { direction: rtl; }
+[dir="rtl"] .panel-head { flex-direction: row-reverse; }
+[dir="rtl"] .stats-grid { direction: rtl; }
+[dir="rtl"] .stat-card { text-align: right; }
+[dir="rtl"] .quick-grid { direction: rtl; }
+[dir="rtl"] .quick-card { text-align: right; }
+[dir="rtl"] .filter-row { flex-direction: row-reverse; }
+[dir="rtl"] table { direction: rtl; }
+[dir="rtl"] th, [dir="rtl"] td { text-align: right; }
+[dir="rtl"] .confirm-actions { flex-direction: row-reverse; }
+[dir="rtl"] .confirm-dialog { direction: rtl; text-align: right; }
+[dir="rtl"] .safe-send-banner { flex-direction: row-reverse; }
+[dir="rtl"] .safety-banner { direction: rtl; text-align: right; }
+[dir="rtl"] .group-picker { flex-direction: row-reverse; }
+[dir="rtl"] .section-divider { text-align: right; }
+[dir="rtl"] .secret-note { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .hero-card { flex-direction: row-reverse; }
+[dir="rtl"] .channel-options { direction: rtl; }
+[dir="rtl"] .readiness-list { direction: rtl; }
+[dir="rtl"] .sidebar-footer { flex-direction: row-reverse; }
+[dir="rtl"], [dir="rtl"] body, [dir="rtl"] button, [dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select, [dir="rtl"] th, [dir="rtl"] td, [dir="rtl"] label { font-family: 'Parastoo', Tahoma, Arial, sans-serif; }
+[dir="rtl"] body { font-size: 16px; }
+[dir="rtl"] label > span { font-size: 14px; }
+[dir="rtl"] .eyebrow { font-size: 12px; }
+[dir="rtl"] .section-heading h2 { font-size: 30px; }
+[dir="rtl"] th { font-size: 13px; }
+[dir="rtl"] td { font-size: 14px; }
+[dir="rtl"] .safe-send-banner span { font-size: 15px; }
+[dir="rtl"] .helper-text { font-size: 15px; }
+[dir="rtl"] .form-actions p { font-size: 14px; }
+[dir="rtl"] .quick-card span { font-size: 14px; }
+[dir="rtl"] .quick-card b { font-size: 18px; }
+[dir="rtl"] .contact-card strong { font-size: 15px; }
+[dir="rtl"] .contact-card span { font-size: 13px; }
+[dir="rtl"] .group-card strong, [dir="rtl"] .reminder-card strong { font-size: 15px; }
+[dir="rtl"] .group-card span, [dir="rtl"] .reminder-card span { font-size: 14px; }
+[dir="rtl"] .readiness-item strong { font-size: 15px; }
+[dir="rtl"] .readiness-item span { font-size: 14px; }
+[dir="rtl"] .stat-card span { font-size: 15px; }
+[dir="rtl"] .section-divider p:last-child { font-size: 14px; }
 
 .main { min-width: 0; }
 .topbar { min-height: 96px; padding: 20px 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: rgba(255,255,255,.9); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }

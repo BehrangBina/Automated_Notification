@@ -1,10 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Parman Automation</title>
   <link rel="icon" type="image/png" href="./assets/parman-logo-email.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Parastoo:wght@400;700&display=swap">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -18,20 +21,24 @@
         </div>
       </div>
 
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+        <button class="lang-btn" id="lang-fa" data-lang="fa">FA فا</button>
+      </div>
       <nav class="nav-list" aria-label="Main navigation">
-        <button class="nav-item active" data-view="overview"><span>01</span>Overview</button>
-        <button class="nav-item" data-view="meetings"><span>02</span>Meetings</button>
-        <button class="nav-item" data-view="birthdays"><span>03</span>Birthdays</button>
-        <button class="nav-item" data-view="notifications"><span>04</span>Notifications</button>
-        <button class="nav-item" data-view="groups"><span>05</span>Recipient groups</button>
-        <button class="nav-item" data-view="schedules"><span>06</span>Schedules</button>
-        <button class="nav-item" data-view="history"><span>07</span>Delivery history</button>
-        <button class="nav-item" data-view="settings"><span>08</span>Settings</button>
+        <button class="nav-item active" data-view="overview"><span>01</span><span data-i18n="nav.overview">Overview</span></button>
+        <button class="nav-item" data-view="meetings"><span>02</span><span data-i18n="nav.meetings">Meetings</span></button>
+        <button class="nav-item" data-view="birthdays"><span>03</span><span data-i18n="nav.birthdays">Birthdays</span></button>
+        <button class="nav-item" data-view="notifications"><span>04</span><span data-i18n="nav.notifications">Notifications</span></button>
+        <button class="nav-item" data-view="groups"><span>05</span><span data-i18n="nav.groups">Recipient groups</span></button>
+        <button class="nav-item" data-view="schedules"><span>06</span><span data-i18n="nav.schedules">Schedules</span></button>
+        <button class="nav-item" data-view="history"><span>07</span><span data-i18n="nav.history">Delivery history</span></button>
+        <button class="nav-item" data-view="settings"><span>08</span><span data-i18n="nav.settings">Settings</span></button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="mode-dot"></div>
-        <div><strong>Safe test mode</strong><span>Emails go to Mailpit</span></div>
+        <div><strong data-i18n="sidebar.safeMode">Safe test mode</strong><span data-i18n="sidebar.safeModeDetail">Emails go to Mailpit</span></div>
       </div>
     </aside>
 
@@ -46,7 +53,7 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <a class="ghost-button" href="http://localhost:8025" target="_blank">Open Mailpit</a>
+          <a class="ghost-button" href="http://localhost:8025" target="_blank" data-i18n="topbar.openMailpit">Open Mailpit</a>
           <span class="health-pill" id="health-pill"><i></i>Checking services</span>
         </div>
       </header>
@@ -56,57 +63,57 @@
           <div class="hero-card">
             <div>
               <span class="badge">Checkpoint 8</span>
-              <h2>Your automation tools, without the JSON.</h2>
-              <p>Create meetings, manage birthdays, send announcements, and review every delivery from one place.</p>
+              <h2 data-i18n="overview.heroTitle">Your automation tools, without the JSON.</h2>
+              <p data-i18n="overview.heroSubtitle">Create meetings, manage birthdays, send announcements, and review every delivery from one place.</p>
             </div>
             <img src="./assets/parman-logo-email.png" alt="">
           </div>
 
           <div class="stats-grid">
-            <article class="stat-card"><span>Birthday contacts</span><strong id="stat-contacts">--</strong><small>Saved persistently</small></article>
-            <article class="stat-card"><span>Sent deliveries</span><strong id="stat-sent">--</strong><small>Confirmed by email service</small></article>
-            <article class="stat-card"><span>Failed deliveries</span><strong id="stat-failed">--</strong><small>Available for retry</small></article>
-            <article class="stat-card"><span>Prevented duplicates</span><strong id="stat-duplicates">--</strong><small>Accidental resends stopped</small></article>
+            <article class="stat-card"><span data-i18n="overview.statContacts">Birthday contacts</span><strong id="stat-contacts">--</strong><small data-i18n="overview.statContactsSub">Saved persistently</small></article>
+            <article class="stat-card"><span data-i18n="overview.statSent">Sent deliveries</span><strong id="stat-sent">--</strong><small data-i18n="overview.statSentSub">Confirmed by email service</small></article>
+            <article class="stat-card"><span data-i18n="overview.statFailed">Failed deliveries</span><strong id="stat-failed">--</strong><small data-i18n="overview.statFailedSub">Available for retry</small></article>
+            <article class="stat-card"><span data-i18n="overview.statDuplicates">Prevented duplicates</span><strong id="stat-duplicates">--</strong><small data-i18n="overview.statDuplicatesSub">Accidental resends stopped</small></article>
           </div>
 
           <div class="section-heading">
-            <div><p class="eyebrow">QUICK START</p><h2>What would you like to do?</h2></div>
+            <div><p class="eyebrow" data-i18n="overview.quickStartEyebrow">QUICK START</p><h2 data-i18n="overview.quickStartTitle">What would you like to do?</h2></div>
           </div>
           <div class="quick-grid">
-            <button class="quick-card" data-go="meetings"><b>Meeting invite</b><span>Agenda, timezones, Zoom and calendar file</span></button>
-            <button class="quick-card" data-go="birthdays"><b>Birthday contact</b><span>Save people and run a safe birthday test</span></button>
-            <button class="quick-card" data-go="notifications"><b>Announcement</b><span>Persian or English branded notification</span></button>
-            <button class="quick-card" data-go="groups"><b>Recipient groups</b><span>Reuse the same email lists across every message</span></button>
-            <button class="quick-card" data-go="schedules"><b>Schedules</b><span>Control automatic checks while staying in Mailpit mode</span></button>
-            <button class="quick-card" data-go="settings"><b>Safety settings</b><span>Review safe mode and production-readiness basics</span></button>
+            <button class="quick-card" data-go="meetings"><b data-i18n="overview.qMeeting">Meeting invite</b><span data-i18n="overview.qMeetingSub">Agenda, timezones, Zoom and calendar file</span></button>
+            <button class="quick-card" data-go="birthdays"><b data-i18n="overview.qBirthday">Birthday contact</b><span data-i18n="overview.qBirthdaySub">Save people and run a safe birthday test</span></button>
+            <button class="quick-card" data-go="notifications"><b data-i18n="overview.qNotification">Announcement</b><span data-i18n="overview.qNotificationSub">Persian or English branded notification</span></button>
+            <button class="quick-card" data-go="groups"><b data-i18n="overview.qGroups">Recipient groups</b><span data-i18n="overview.qGroupsSub">Reuse the same email lists across every message</span></button>
+            <button class="quick-card" data-go="schedules"><b data-i18n="overview.qSchedules">Schedules</b><span data-i18n="overview.qSchedulesSub">Control automatic checks while staying in Mailpit mode</span></button>
+            <button class="quick-card" data-go="settings"><b data-i18n="overview.qSettings">Safety settings</b><span data-i18n="overview.qSettingsSub">Review safe mode and production-readiness basics</span></button>
           </div>
         </section>
 
         <section class="view" id="view-meetings">
           <div class="section-heading">
-            <div><p class="eyebrow">MEETING INVITATIONS</p><h2>Create a global meeting</h2><p>Enter the meeting in its source timezone. Local times and the calendar attachment are generated automatically.</p></div>
+            <div><p class="eyebrow" data-i18n="meetings.eyebrow">MEETING INVITATIONS</p><h2 data-i18n="meetings.title">Create a global meeting</h2><p data-i18n="meetings.subtitle">Enter the meeting in its source timezone. Local times and the calendar attachment are generated automatically.</p></div>
           </div>
-          <div class="safe-send-banner"><strong>Safe mode</strong><span>This meeting invite will be sent only to local Mailpit after preview approval.</span></div>
+          <div class="safe-send-banner"><strong data-i18n="common.safeMode">Safe mode</strong><span data-i18n="meetings.safeBanner">This meeting invite will be sent only to local Mailpit after preview approval.</span></div>
           <form class="form-card" id="meeting-form">
             <div class="form-grid two">
-              <label><span>Meeting title</span><input name="title" required value="جلسه کارگروه نرم‌افزار پارمان" dir="rtl"></label>
-              <label><span>Greeting</span><input name="greeting" required value="دوستان گرامی کارگروه نرم‌افزار" dir="rtl"></label>
-              <label><span>Date</span><input name="date" type="date" required></label>
-              <label><span>Start time <small>In selected source timezone</small></span><input name="time" type="time" required value="11:00"></label>
-              <label><span>Source timezone</span><select name="timezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
-              <label><span>Duration</span><select name="durationMinutes"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="75">75 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select></label>
+              <label><span data-i18n="meetings.fieldTitle">Meeting title</span><input name="title" required value="جلسه کارگروه نرم‌افزار پارمان" dir="rtl"></label>
+              <label><span data-i18n="meetings.fieldGreeting">Greeting</span><input name="greeting" required value="دوستان گرامی کارگروه نرم‌افزار" dir="rtl"></label>
+              <label><span data-i18n="meetings.fieldDate">Date</span><input name="date" type="date" required></label>
+              <label><span data-i18n="meetings.fieldTime">Start time</span><input name="time" type="time" required value="11:00"></label>
+              <label><span data-i18n="meetings.fieldTimezone">Source timezone</span><select name="timezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
+              <label><span data-i18n="meetings.fieldDuration">Duration</span><select name="durationMinutes"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="75">75 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select></label>
             </div>
-            <label><span>Agenda <small>One item per line</small></span><textarea name="agenda" rows="5" required dir="rtl">خوشامدگویی و معرفی
+            <label><span data-i18n="meetings.fieldAgenda">Agenda</span><textarea name="agenda" rows="5" required dir="rtl">خوشامدگویی و معرفی
 اولویت‌بندی نیازهای پارمان که نیاز به اتوماسیون دارند
 جمع‌بندی و تعیین مسئولیت‌ها</textarea></label>
             <div class="form-grid three">
-              <label><span>Zoom URL</span><input name="zoomUrl" type="url" required placeholder="https://zoom.us/j/..."></label>
-              <label><span>Meeting ID</span><input name="meetingId" required></label>
-              <label><span>Passcode</span><input name="passcode" required></label>
+              <label><span data-i18n="meetings.fieldZoom">Zoom URL</span><input name="zoomUrl" type="url" required placeholder="https://zoom.us/j/..."></label>
+              <label><span data-i18n="meetings.fieldMeetingId">Meeting ID</span><input name="meetingId" required></label>
+              <label><span data-i18n="meetings.fieldPasscode">Passcode</span><input name="passcode" required></label>
             </div>
             <div class="form-grid two">
-              <label><span>Organizer name</span><input name="organizerName" required value="مینا چنگیزی" dir="rtl"></label>
-              <label><span>Organizer email</span><input name="organizerEmail" type="email" required value="mina@parman.local"></label>
+              <label><span data-i18n="meetings.fieldOrgName">Organizer name</span><input name="organizerName" required value="مینا چنگیزی" dir="rtl"></label>
+              <label><span data-i18n="meetings.fieldOrgEmail">Organizer email</span><input name="organizerEmail" type="email" required value="mina@parman.local"></label>
             </div>
             <div class="group-picker">
               <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
@@ -114,67 +121,67 @@
             </div>
             <label><span>Recipients <small>New line, comma, or semicolon</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
             <div class="form-actions">
-              <p><strong>Safe mode:</strong> the invitation will appear in Mailpit.</p>
-              <button class="primary-button" type="submit">Send test meeting invite</button>
+              <p><strong data-i18n="common.safeMode">Safe mode:</strong> <span data-i18n="meetings.safeNote">the invitation will appear in Mailpit.</span></p>
+              <button class="primary-button" type="submit" data-i18n="meetings.sendBtn">Send test meeting invite</button>
             </div>
           </form>
         </section>
 
         <section class="view" id="view-birthdays">
           <div class="section-heading split">
-            <div><p class="eyebrow">BIRTHDAY AUTOMATION</p><h2>Birthday contacts</h2><p>Saved contacts survive Node-RED restarts and are checked in their local timezone.</p></div>
-            <button class="secondary-button" id="run-birthday-test">Send selected birthday test</button>
+            <div><p class="eyebrow" data-i18n="birthdays.eyebrow">BIRTHDAY AUTOMATION</p><h2 data-i18n="birthdays.title">Birthday contacts</h2><p data-i18n="birthdays.subtitle">Saved contacts survive Node-RED restarts and are checked in their local timezone.</p></div>
+            <button class="secondary-button" id="run-birthday-test" data-i18n="birthdays.runTest">Send selected birthday test</button>
           </div>
-          <div class="safe-send-banner"><strong>Safe mode</strong><span>Birthday tests require preview approval and go only to local Mailpit.</span></div>
+          <div class="safe-send-banner"><strong data-i18n="common.safeMode">Safe mode</strong><span data-i18n="birthdays.safeBanner">Birthday tests require preview approval and go only to local Mailpit.</span></div>
           <div class="two-column">
             <form class="form-card compact" id="birthday-form">
               <input type="hidden" name="id">
-              <h3 id="birthday-form-title">Add a birthday contact</h3>
-              <label><span>Display name</span><input name="name" required placeholder="نام و نام خانوادگی" dir="rtl"></label>
+              <h3 id="birthday-form-title" data-i18n="birthdays.formTitle">Add a birthday contact</h3>
+              <label><span data-i18n="birthdays.fieldName">Display name</span><input name="name" required placeholder="نام و نام خانوادگی" dir="rtl"></label>
               <div class="form-grid two">
-                <label><span>Birthday</span><input name="birthday" required placeholder="MM-DD" pattern="\d{2}-\d{2}"></label>
-                <label><span>Local send hour</span><input name="sendHour" type="number" min="0" max="23" value="9" required></label>
+                <label><span data-i18n="birthdays.fieldBirthday">Birthday</span><input name="birthday" required placeholder="MM-DD" pattern="\d{2}-\d{2}"></label>
+                <label><span data-i18n="birthdays.fieldSendHour">Local send hour</span><input name="sendHour" type="number" min="0" max="23" value="9" required></label>
               </div>
-              <label><span>Timezone</span><select name="timezone"><option value="Australia/Melbourne">Melbourne</option><option value="Europe/Paris">Central Europe</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
+              <label><span data-i18n="common.fieldTimezone">Timezone</span><select name="timezone"><option value="Australia/Melbourne">Melbourne</option><option value="Europe/Paris">Central Europe</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
               <div class="group-picker compact-picker">
                 <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
                 <button class="secondary-button apply-recipient-group" type="button" data-target-form="birthday-form" data-target-field="recipientEmails">Add group recipients</button>
               </div>
-              <label><span>Recipient emails <small>New line, comma, or semicolon</small></span><textarea name="recipientEmails" rows="3" required>members@parman.local</textarea></label>
-              <label class="checkbox"><input name="active" type="checkbox" checked><span>Active contact</span></label>
+              <label><span data-i18n="birthdays.fieldRecipients">Recipient emails</span><textarea name="recipientEmails" rows="3" required>members@parman.local</textarea></label>
+              <label class="checkbox"><input name="active" type="checkbox" checked><span data-i18n="birthdays.fieldActive">Active contact</span></label>
               <div class="form-actions">
-                <button type="button" class="text-button hidden" id="cancel-birthday-edit">Cancel edit</button>
-                <button class="primary-button" type="submit">Save contact</button>
+                <button type="button" class="text-button hidden" id="cancel-birthday-edit" data-i18n="common.cancelEdit">Cancel edit</button>
+                <button class="primary-button" type="submit" data-i18n="birthdays.saveBtn">Save contact</button>
               </div>
             </form>
             <div class="panel">
-              <div class="panel-head"><h3>Saved contacts</h3><button class="icon-button" id="refresh-contacts">Refresh</button></div>
-              <div id="contacts-list" class="contact-list"><div class="empty-state">Loading contacts...</div></div>
+              <div class="panel-head"><h3 data-i18n="birthdays.savedContacts">Saved contacts</h3><button class="icon-button" id="refresh-contacts" data-i18n="common.refresh">Refresh</button></div>
+              <div id="contacts-list" class="contact-list"><div class="empty-state" data-i18n="birthdays.loadingContacts">Loading contacts...</div></div>
             </div>
           </div>
         </section>
 
         <section class="view" id="view-notifications">
           <div class="section-heading">
-            <div><p class="eyebrow">ANNOUNCEMENTS & REMINDERS</p><h2>Compose a notification</h2><p>The layout automatically switches between Persian RTL and English LTR.</p></div>
+            <div><p class="eyebrow" data-i18n="notifications.eyebrow">ANNOUNCEMENTS & REMINDERS</p><h2 data-i18n="notifications.title">Compose a notification</h2><p data-i18n="notifications.subtitle">The layout automatically switches between Persian RTL and English LTR.</p></div>
           </div>
-          <div class="safe-send-banner"><strong>Safe mode</strong><span>Email goes to local Mailpit. Telegram sends to your configured chat (set up in Settings).</span></div>
+          <div class="safe-send-banner"><strong data-i18n="common.safeMode">Safe mode</strong><span data-i18n="notifications.safeBanner">Email goes to local Mailpit. Telegram sends to your configured chat (set up in Settings).</span></div>
           <form class="form-card" id="notification-form">
             <div class="form-grid two">
-              <label><span>Language</span><select name="language"><option value="fa">Persian</option><option value="en">English</option></select></label>
-              <label><span>Message type</span><select name="type"><option value="info">Information</option><option value="success">Update / success</option><option value="warning" selected>Important reminder</option><option value="urgent">Urgent</option></select></label>
-              <label><span>Email subject</span><input name="subject" required value="یادآوری مهم: اطلاعیه پارمان" dir="auto"></label>
-              <label><span>Headline</span><input name="title" required value="اطلاعیه روابط عمومی پارمان" dir="auto"></label>
+              <label><span data-i18n="notifications.fieldLang">Language</span><select name="language"><option value="fa">Persian</option><option value="en">English</option></select></label>
+              <label><span data-i18n="notifications.fieldType">Message type</span><select name="type"><option value="info">Information</option><option value="success">Update / success</option><option value="warning" selected>Important reminder</option><option value="urgent">Urgent</option></select></label>
+              <label><span data-i18n="notifications.fieldSubject">Email subject</span><input name="subject" required value="یادآوری مهم: اطلاعیه پارمان" dir="auto"></label>
+              <label><span data-i18n="notifications.fieldHeadline">Headline</span><input name="title" required value="اطلاعیه روابط عمومی پارمان" dir="auto"></label>
             </div>
-            <label><span>Message <small>Separate paragraphs with a blank line</small></span><textarea name="message" rows="7" required dir="auto">همراهان گرامی،
+            <label><span data-i18n="notifications.fieldMessage">Message</span><textarea name="message" rows="7" required dir="auto">همراهان گرامی،
 
 این یک پیام آزمایشی از سامانه اتوماسیون پارمان است.
 
 با سپاس از همراهی شما.</textarea></label>
             <div class="channel-options">
-              <p class="eyebrow">DELIVERY CHANNELS</p>
-              <label class="checkbox"><input name="channelEmail" type="checkbox" checked><span>Email (Mailpit in safe mode)</span></label>
-              <label class="checkbox"><input name="channelTelegram" type="checkbox"><span>Telegram <small id="telegram-channel-hint">(configure in Settings)</small></span></label>
+              <p class="eyebrow" data-i18n="notifications.channelsEyebrow">DELIVERY CHANNELS</p>
+              <label class="checkbox"><input name="channelEmail" type="checkbox" checked><span data-i18n="notifications.channelEmail">Email (Mailpit in safe mode)</span></label>
+              <label class="checkbox"><input name="channelTelegram" type="checkbox"><span>Telegram <small id="telegram-channel-hint" data-i18n="notifications.channelTelegramHint">(configure in Settings)</small></span></label>
             </div>
             <div class="group-picker">
               <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
@@ -186,82 +193,82 @@
               <label><span>Button URL <small>Optional</small></span><input name="actionUrl" type="url" placeholder="https://example.com"></label>
             </div>
             <div class="form-actions">
-              <p><strong>Safe mode:</strong> the notification will appear in Mailpit.</p>
-              <button class="primary-button" type="submit">Send test notification</button>
+              <p><strong data-i18n="common.safeMode">Safe mode:</strong> <span data-i18n="notifications.safeNote">the notification will appear in Mailpit.</span></p>
+              <button class="primary-button" type="submit" data-i18n="notifications.sendBtn">Send test notification</button>
             </div>
           </form>
         </section>
 
         <section class="view" id="view-groups">
           <div class="section-heading">
-            <div><p class="eyebrow">REUSABLE AUDIENCES</p><h2>Recipient groups</h2><p>Manage email lists once, then add them to meetings, birthday messages, or notifications.</p></div>
+            <div><p class="eyebrow" data-i18n="groups.eyebrow">REUSABLE AUDIENCES</p><h2 data-i18n="groups.title">Recipient groups</h2><p data-i18n="groups.subtitle">Manage email lists once, then add them to meetings, birthday messages, or notifications.</p></div>
           </div>
           <div class="two-column">
             <form class="form-card compact" id="recipient-group-form">
               <input type="hidden" name="id">
-              <h3 id="recipient-group-form-title">Create a recipient group</h3>
-              <label><span>Group name</span><input name="name" required placeholder="Software Working Group"></label>
-              <label><span>Description <small>Optional</small></span><input name="description" placeholder="Members who receive software updates"></label>
-              <label><span>Email addresses <small>New line, comma, or semicolon</small></span><textarea name="emails" rows="7" required placeholder="person1@example.com; person2@example.com"></textarea></label>
+              <h3 id="recipient-group-form-title" data-i18n="groups.formTitle">Create a recipient group</h3>
+              <label><span data-i18n="groups.fieldName">Group name</span><input name="name" required placeholder="Software Working Group"></label>
+              <label><span data-i18n="groups.fieldDesc">Description</span><input name="description" placeholder="Members who receive software updates"></label>
+              <label><span data-i18n="groups.fieldEmails">Email addresses</span><textarea name="emails" rows="7" required placeholder="person1@example.com; person2@example.com"></textarea></label>
               <div class="form-actions">
-                <button type="button" class="text-button hidden" id="cancel-group-edit">Cancel edit</button>
-                <button class="primary-button" type="submit">Save recipient group</button>
+                <button type="button" class="text-button hidden" id="cancel-group-edit" data-i18n="common.cancelEdit">Cancel edit</button>
+                <button class="primary-button" type="submit" data-i18n="groups.saveBtn">Save recipient group</button>
               </div>
             </form>
             <div class="panel">
-              <div class="panel-head"><h3>Saved groups</h3><button class="icon-button" id="refresh-groups">Refresh</button></div>
-              <div id="groups-list" class="group-list"><div class="empty-state">Loading recipient groups...</div></div>
+              <div class="panel-head"><h3 data-i18n="groups.savedGroups">Saved groups</h3><button class="icon-button" id="refresh-groups" data-i18n="common.refresh">Refresh</button></div>
+              <div id="groups-list" class="group-list"><div class="empty-state" data-i18n="groups.loading">Loading recipient groups...</div></div>
             </div>
           </div>
         </section>
 
         <section class="view" id="view-schedules">
           <div class="section-heading split">
-            <div><p class="eyebrow">AUTOMATION TIMING</p><h2>Schedules</h2><p>Control automatic checks safely. In this POC, scheduled emails still go only to Mailpit.</p></div>
-            <button class="secondary-button" id="refresh-schedules">Refresh schedules</button>
+            <div><p class="eyebrow" data-i18n="schedules.eyebrow">AUTOMATION TIMING</p><h2 data-i18n="schedules.title">Schedules</h2><p data-i18n="schedules.subtitle">Control automatic checks safely. In this POC, scheduled emails still go only to Mailpit.</p></div>
+            <button class="secondary-button" id="refresh-schedules" data-i18n="schedules.refreshBtn">Refresh schedules</button>
           </div>
           <div id="schedules-list" class="schedule-list"><div class="empty-state">Loading schedules...</div></div>
 
           <div class="section-heading split">
-            <div><p class="eyebrow">MEETING REMINDERS</p><h2>Scheduled reminders</h2><p>Create reminder emails that send once when their reminder time is due.</p></div>
-            <button class="secondary-button" id="run-reminder-check">Run due reminders now</button>
+            <div><p class="eyebrow" data-i18n="reminders.eyebrow">MEETING REMINDERS</p><h2 data-i18n="reminders.title">Scheduled reminders</h2><p data-i18n="reminders.subtitle">Create reminder emails that send once when their reminder time is due.</p></div>
+            <button class="secondary-button" id="run-reminder-check" data-i18n="reminders.runNow">Run due reminders now</button>
           </div>
           <div class="two-column">
             <form class="form-card compact" id="meeting-reminder-form">
               <input type="hidden" name="id">
-              <h3 id="meeting-reminder-form-title">Create meeting reminder</h3>
-              <label><span>Reminder title</span><input name="title" required placeholder="Software Working Group reminder"></label>
-              <label><span>Reminder time <small>Local browser time</small></span><input name="remindAt" type="datetime-local" required></label>
+              <h3 id="meeting-reminder-form-title" data-i18n="reminders.formTitle">Create meeting reminder</h3>
+              <label><span data-i18n="reminders.fieldTitle">Reminder title</span><input name="title" required placeholder="Software Working Group reminder"></label>
+              <label><span data-i18n="reminders.fieldTime">Reminder time</span><input name="remindAt" type="datetime-local" required></label>
               <div class="form-grid two">
-                <label><span>Meeting date <small>Optional</small></span><input name="meetingDate" type="date"></label>
-                <label><span>Meeting time <small>Optional</small></span><input name="meetingTime" type="time"></label>
+                <label><span data-i18n="reminders.fieldMeetingDate">Meeting date</span><input name="meetingDate" type="date"></label>
+                <label><span data-i18n="reminders.fieldMeetingTime">Meeting time</span><input name="meetingTime" type="time"></label>
               </div>
-              <label><span>Meeting timezone <small>Optional</small></span><select name="meetingTimezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
-              <label><span>Zoom URL <small>Optional</small></span><input name="zoomUrl" type="url" placeholder="https://zoom.us/j/..."></label>
-              <label><span>Recipients <small>New line, comma, or semicolon</small></span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
-              <label><span>Reminder message <small>Optional</small></span><textarea name="message" rows="4">This is a friendly reminder for the upcoming meeting.</textarea></label>
-              <label class="checkbox"><input name="enabled" type="checkbox" checked><span>Enabled</span></label>
+              <label><span data-i18n="reminders.fieldMeetingTz">Meeting timezone</span><select name="meetingTimezone"><option value="Europe/Paris">Central Europe</option><option value="Australia/Melbourne">Melbourne</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></label>
+              <label><span data-i18n="reminders.fieldZoom">Zoom URL</span><input name="zoomUrl" type="url" placeholder="https://zoom.us/j/..."></label>
+              <label><span data-i18n="common.fieldRecipients">Recipients</span><textarea name="recipients" rows="3" required>members@parman.local</textarea></label>
+              <label><span data-i18n="reminders.fieldMessage">Reminder message</span><textarea name="message" rows="4">This is a friendly reminder for the upcoming meeting.</textarea></label>
+              <label class="checkbox"><input name="enabled" type="checkbox" checked><span data-i18n="reminders.fieldEnabled">Enabled</span></label>
               <div class="form-actions">
-                <button type="button" class="text-button hidden" id="cancel-reminder-edit">Cancel edit</button>
-                <button class="primary-button" type="submit">Save reminder</button>
+                <button type="button" class="text-button hidden" id="cancel-reminder-edit" data-i18n="common.cancelEdit">Cancel edit</button>
+                <button class="primary-button" type="submit" data-i18n="reminders.saveBtn">Save reminder</button>
               </div>
             </form>
             <div class="panel">
-              <div class="panel-head"><h3>Saved reminders</h3><button class="icon-button" id="refresh-reminders">Refresh</button></div>
-              <div id="reminders-list" class="reminder-list"><div class="empty-state">Loading meeting reminders...</div></div>
+              <div class="panel-head"><h3 data-i18n="reminders.savedReminders">Saved reminders</h3><button class="icon-button" id="refresh-reminders" data-i18n="common.refresh">Refresh</button></div>
+              <div id="reminders-list" class="reminder-list"><div class="empty-state" data-i18n="reminders.loading">Loading meeting reminders...</div></div>
             </div>
           </div>
 
           <div class="section-heading split">
-            <div><p class="eyebrow">RUN AUDIT</p><h2>Schedule run log</h2><p>See when automatic checks or manual test runs happened, and what they did.</p></div>
+            <div><p class="eyebrow" data-i18n="runlog.eyebrow">RUN AUDIT</p><h2 data-i18n="runlog.title">Schedule run log</h2><p data-i18n="runlog.subtitle">See when automatic checks or manual test runs happened, and what they did.</p></div>
             <div class="schedule-actions">
               <select id="schedule-run-filter" aria-label="Filter schedule run log">
                 <option value="">All jobs</option>
                 <option value="birthday-check">Birthday check</option>
                 <option value="meeting-reminders">Meeting reminders</option>
               </select>
-              <button class="secondary-button" id="refresh-run-log">Refresh run log</button>
-              <button class="danger-button" id="clear-run-log">Clear log</button>
+              <button class="secondary-button" id="refresh-run-log" data-i18n="runlog.refreshBtn">Refresh run log</button>
+              <button class="danger-button" id="clear-run-log" data-i18n="runlog.clearBtn">Clear log</button>
             </div>
           </div>
           <div id="schedule-run-log" class="run-log-list"><div class="empty-state">Loading schedule run log...</div></div>
@@ -269,16 +276,16 @@
 
         <section class="view" id="view-history">
           <div class="section-heading split">
-            <div><p class="eyebrow">RELIABILITY</p><h2>Delivery history</h2><p>Review sent, failed, queued, duplicate, and retry information.</p></div>
-            <button class="secondary-button" id="refresh-history">Refresh history</button>
+            <div><p class="eyebrow" data-i18n="history.eyebrow">RELIABILITY</p><h2 data-i18n="history.title">Delivery history</h2><p data-i18n="history.subtitle">Review sent, failed, queued, duplicate, and retry information.</p></div>
+            <button class="secondary-button" id="refresh-history" data-i18n="common.refresh">Refresh history</button>
           </div>
           <div class="filter-row">
-            <select id="history-status"><option value="">All statuses</option><option value="sent">Sent</option><option value="failed">Failed</option><option value="queued">Queued</option></select>
-            <select id="history-source"><option value="">All sources</option><option value="meeting">Meetings</option><option value="birthday">Birthdays</option><option value="notification">Notifications</option><option value="reliability-test">Reliability tests</option></select>
+            <select id="history-status"><option value="" data-i18n="history.allStatuses">All statuses</option><option value="sent" data-i18n="history.sent">Sent</option><option value="failed" data-i18n="history.failed">Failed</option><option value="queued" data-i18n="history.queued">Queued</option></select>
+            <select id="history-source"><option value="" data-i18n="history.allSources">All sources</option><option value="meeting" data-i18n="nav.meetings">Meetings</option><option value="birthday" data-i18n="nav.birthdays">Birthdays</option><option value="notification" data-i18n="nav.notifications">Notifications</option><option value="reliability-test" data-i18n="history.reliabilityTests">Reliability tests</option></select>
           </div>
           <div class="table-card">
             <table>
-              <thead><tr><th>Status</th><th>Source</th><th>Subject</th><th>Recipients</th><th>Attempts</th><th>Duplicates</th><th>Updated</th><th></th></tr></thead>
+              <thead><tr><th data-i18n="history.colStatus">Status</th><th data-i18n="history.colSource">Source</th><th data-i18n="history.colSubject">Subject</th><th data-i18n="history.colRecipients">Recipients</th><th data-i18n="history.colAttempts">Attempts</th><th data-i18n="history.colDuplicates">Duplicates</th><th data-i18n="history.colUpdated">Updated</th><th></th></tr></thead>
               <tbody id="history-body"><tr><td colspan="8">Loading delivery history...</td></tr></tbody>
             </table>
           </div>
@@ -286,7 +293,7 @@
 
         <section class="view" id="view-settings">
           <div class="section-heading">
-            <div><p class="eyebrow">PRODUCTION READINESS</p><h2>Safety settings</h2><p>Checkpoint 11A keeps live email disabled. This page documents the current safe-mode settings and what must be true before any future live-send phase.</p></div>
+            <div><p class="eyebrow" data-i18n="settings.eyebrow">PRODUCTION READINESS</p><h2 data-i18n="settings.title">Safety settings</h2><p data-i18n="settings.subtitle">Checkpoint 11A keeps live email disabled. This page documents the current safe-mode settings and what must be true before any future live-send phase.</p></div>
           </div>
           <div class="safety-banner">
             <strong id="safe-mode-title">Safe mode is active</strong>
@@ -294,46 +301,46 @@
           </div>
           <div class="two-column">
             <form class="form-card compact" id="settings-form">
-              <h3>Operator settings</h3>
-              <label><span>Environment name</span><input name="environmentName" required placeholder="Local POC"></label>
-              <label><span>Default from name</span><input name="defaultFromName" required placeholder="Parman Automation"></label>
-              <label><span>Default from email</span><input name="defaultFromEmail" type="email" required placeholder="notifications@parman.local"></label>
-              <label><span>Reply-to email</span><input name="replyToEmail" type="email" required placeholder="reply@parman.local"></label>
-              <label><span>Future live-send approval phrase</span><input name="approvalPhrase" required placeholder="APPROVE LIVE SEND"></label>
+              <h3 data-i18n="settings.operatorTitle">Operator settings</h3>
+              <label><span data-i18n="settings.fieldEnvName">Environment name</span><input name="environmentName" required placeholder="Local POC"></label>
+              <label><span data-i18n="settings.fieldFromName">Default from name</span><input name="defaultFromName" required placeholder="Parman Automation"></label>
+              <label><span data-i18n="settings.fieldFromEmail">Default from email</span><input name="defaultFromEmail" type="email" required placeholder="notifications@parman.local"></label>
+              <label><span data-i18n="settings.fieldReplyTo">Reply-to email</span><input name="replyToEmail" type="email" required placeholder="reply@parman.local"></label>
+              <label><span data-i18n="settings.fieldApproval">Future live-send approval phrase</span><input name="approvalPhrase" required placeholder="APPROVE LIVE SEND"></label>
               <div class="section-divider">
                 <p class="eyebrow">SMTP READINESS PLAN</p>
                 <p>Document future provider details only. Do not paste SMTP passwords here.</p>
               </div>
-              <label><span>SMTP provider <small>Planning only</small></span><input name="smtpProvider" placeholder="Brevo, SendGrid, Gmail, Microsoft 365, Amazon SES"></label>
+              <label><span data-i18n="settings.fieldSmtpProvider">SMTP provider</span><input name="smtpProvider" placeholder="Brevo, SendGrid, Gmail, Microsoft 365, Amazon SES"></label>
               <div class="form-grid two">
-                <label><span>SMTP host</span><input name="smtpHost" placeholder="smtp.example.com"></label>
-                <label><span>SMTP port</span><input name="smtpPort" inputmode="numeric" placeholder="587"></label>
+                <label><span data-i18n="settings.fieldSmtpHost">SMTP host</span><input name="smtpHost" placeholder="smtp.example.com"></label>
+                <label><span data-i18n="settings.fieldSmtpPort">SMTP port</span><input name="smtpPort" inputmode="numeric" placeholder="587"></label>
               </div>
-              <label><span>SMTP username <small>No password</small></span><input name="smtpUsername" placeholder="apikey or mailbox@example.com"></label>
-              <label><span>Sender domain</span><input name="senderDomain" placeholder="parman.org"></label>
+              <label><span data-i18n="settings.fieldSmtpUser">SMTP username</span><input name="smtpUsername" placeholder="apikey or mailbox@example.com"></label>
+              <label><span data-i18n="settings.fieldSenderDomain">Sender domain</span><input name="senderDomain" placeholder="parman.org"></label>
               <div class="secret-note"><strong>Secret rule:</strong><span>SMTP passwords/API keys must be stored later as Docker or Node-RED environment variables, not in this dashboard.</span></div>
               <div class="form-actions">
-                <p>Live email remains locked off in this checkpoint.</p>
-                <button class="primary-button" type="submit">Save safety settings</button>
+                <p data-i18n="settings.saveNote">Live email remains locked off in this checkpoint.</p>
+                <button class="primary-button" type="submit" data-i18n="settings.saveBtn">Save safety settings</button>
               </div>
             </form>
             <div class="panel">
-              <div class="panel-head"><h3>Readiness checklist</h3><button class="icon-button" id="refresh-settings">Refresh</button></div>
+              <div class="panel-head"><h3 data-i18n="settings.readinessTitle">Readiness checklist</h3><button class="icon-button" id="refresh-settings" data-i18n="common.refresh">Refresh</button></div>
               <div id="readiness-list" class="readiness-list"><div class="empty-state">Loading settings...</div></div>
             </div>
           </div>
           <div class="section-heading">
-            <div><p class="eyebrow">TELEGRAM NOTIFICATIONS</p><h2>Telegram channel</h2><p>Connect a Telegram bot to send notifications directly to a chat alongside or instead of email.</p></div>
+            <div><p class="eyebrow" data-i18n="telegram.eyebrow">TELEGRAM NOTIFICATIONS</p><h2 data-i18n="telegram.title">Telegram channel</h2><p data-i18n="telegram.subtitle">Connect a Telegram bot to send notifications directly to a chat alongside or instead of email.</p></div>
           </div>
           <div class="two-column">
             <form class="form-card compact" id="telegram-settings-form">
-              <h3>Telegram bot settings</h3>
-              <label><span>Bot token <small>From @BotFather</small></span><input name="telegramBotToken" type="password" autocomplete="off" placeholder="123456789:ABCdefGHI..."></label>
-              <label><span>Default chat ID <small>From @Getmyid_bot</small></span><input name="telegramChatId" placeholder="e.g. -1001234567890 or 987654321"></label>
+              <h3 data-i18n="telegram.formTitle">Telegram bot settings</h3>
+              <label><span data-i18n="telegram.fieldToken">Bot token</span><input name="telegramBotToken" type="password" autocomplete="off" placeholder="123456789:ABCdefGHI..."></label>
+              <label><span data-i18n="telegram.fieldChatId">Default chat ID</span><input name="telegramChatId" placeholder="e.g. -1001234567890 or 987654321"></label>
               <div class="secret-note"><strong>Secret rule:</strong><span>The bot token is stored in Node-RED global context only. Never commit it to Git or share it publicly.</span></div>
               <div class="form-actions">
                 <p id="telegram-settings-status">Not configured.</p>
-                <button class="primary-button" type="submit">Save Telegram settings</button>
+                <button class="primary-button" type="submit" data-i18n="telegram.saveBtn">Save Telegram settings</button>
               </div>
             </form>
             <div class="panel">
@@ -347,10 +354,10 @@
             </div>
           </div>
           <div class="section-heading">
-            <div><p class="eyebrow">SEND GUARDRAILS</p><h2>Pre-flight checklist</h2><p>These protections apply before POC messages are accepted for delivery.</p></div>
+            <div><p class="eyebrow" data-i18n="settings.preflightEyebrow">SEND GUARDRAILS</p><h2 data-i18n="settings.preflightTitle">Pre-flight checklist</h2><p data-i18n="settings.preflightSubtitle">These protections apply before POC messages are accepted for delivery.</p></div>
           </div>
           <div class="panel">
-            <div class="panel-head"><h3>Active send protections</h3><span class="status sent">safe</span></div>
+            <div class="panel-head"><h3 data-i18n="settings.preflightPanelTitle">Active send protections</h3><span class="status sent" data-i18n="settings.safeLabel">safe</span></div>
             <div id="preflight-list" class="readiness-list"><div class="empty-state">Loading pre-flight checklist...</div></div>
           </div>
           <div class="section-heading">
@@ -367,25 +374,25 @@
             <p>The full handoff guide is saved in <code>docs/demo-guide.md</code>.</p>
           </div>
           <div class="section-heading">
-            <div><p class="eyebrow">BACKUP & RESTORE</p><h2>Portable POC backup</h2><p>Export the current local data as JSON, or paste a backup JSON to restore it. Restore keeps live email disabled.</p></div>
+            <div><p class="eyebrow" data-i18n="backup.eyebrow">BACKUP & RESTORE</p><h2 data-i18n="backup.title">Portable POC backup</h2><p data-i18n="backup.subtitle">Export the current local data as JSON, or paste a backup JSON to restore it. Restore keeps live email disabled.</p></div>
           </div>
           <div class="two-column">
             <div class="form-card compact">
-              <h3>Export backup</h3>
-              <p class="helper-text">Includes contacts, recipient groups, reminders, settings, schedules, run logs, and delivery metadata.</p>
+              <h3 data-i18n="backup.exportTitle">Export backup</h3>
+              <p class="helper-text" data-i18n="backup.exportDesc">Includes contacts, recipient groups, reminders, settings, schedules, run logs, and delivery metadata.</p>
               <div id="backup-summary" class="backup-summary"><div class="empty-state">No backup loaded yet.</div></div>
               <div class="form-actions">
-                <p>The file stays on your computer.</p>
-                <button class="primary-button" type="button" id="export-backup">Download backup JSON</button>
+                <p data-i18n="backup.exportNote">The file stays on your computer.</p>
+                <button class="primary-button" type="button" id="export-backup" data-i18n="backup.exportBtn">Download backup JSON</button>
               </div>
             </div>
             <form class="form-card compact" id="restore-form">
-              <h3>Restore backup</h3>
-              <label><span>Backup JSON</span><textarea name="backupJson" rows="10" required placeholder="Paste exported backup JSON here"></textarea></label>
-              <label class="checkbox"><input name="confirmRestore" type="checkbox" required><span>I understand this replaces saved POC data</span></label>
+              <h3 data-i18n="backup.restoreTitle">Restore backup</h3>
+              <label><span data-i18n="backup.restoreField">Backup JSON</span><textarea name="backupJson" rows="10" required placeholder="Paste exported backup JSON here"></textarea></label>
+              <label class="checkbox"><input name="confirmRestore" type="checkbox" required><span data-i18n="backup.restoreConfirm">I understand this replaces saved POC data</span></label>
               <div class="form-actions">
-                <p>Live email remains locked off after restore.</p>
-                <button class="danger-button" type="submit">Restore backup</button>
+                <p data-i18n="backup.restoreNote">Live email remains locked off after restore.</p>
+                <button class="danger-button" type="submit" data-i18n="backup.restoreBtn">Restore backup</button>
               </div>
             </form>
           </div>
@@ -398,11 +405,11 @@
     <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-contact-title">
       <div class="confirm-icon">!</div>
       <p class="eyebrow">CONFIRM DELETION</p>
-      <h2 id="delete-contact-title">Delete birthday contact?</h2>
+      <h2 id="delete-contact-title" data-i18n="modals.deleteContactTitle">Delete birthday contact?</h2>
       <p id="delete-contact-message">This contact will be permanently removed.</p>
       <div class="confirm-actions">
-        <button class="secondary-button" type="button" id="cancel-contact-delete">Keep contact</button>
-        <button class="danger-button" type="button" id="confirm-contact-delete">Delete contact</button>
+        <button class="secondary-button" type="button" id="cancel-contact-delete" data-i18n="modals.keepContact">Keep contact</button>
+        <button class="danger-button" type="button" id="confirm-contact-delete" data-i18n="modals.deleteContact">Delete contact</button>
       </div>
     </section>
   </div>
@@ -411,11 +418,11 @@
     <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-group-title">
       <div class="confirm-icon">!</div>
       <p class="eyebrow">CONFIRM DELETION</p>
-      <h2 id="delete-group-title">Delete recipient group?</h2>
+      <h2 id="delete-group-title" data-i18n="modals.deleteGroupTitle">Delete recipient group?</h2>
       <p id="delete-group-message">This group will be permanently removed.</p>
       <div class="confirm-actions">
-        <button class="secondary-button" type="button" id="cancel-group-delete">Keep group</button>
-        <button class="danger-button" type="button" id="confirm-group-delete">Delete group</button>
+        <button class="secondary-button" type="button" id="cancel-group-delete" data-i18n="modals.keepGroup">Keep group</button>
+        <button class="danger-button" type="button" id="confirm-group-delete" data-i18n="modals.deleteGroup">Delete group</button>
       </div>
     </section>
   </div>
@@ -425,14 +432,14 @@
       <p class="eyebrow">REVIEW BEFORE SENDING</p>
       <h2 id="send-preview-title">Confirm send</h2>
       <div class="send-guardrail">
-        <strong>Safe mode confirmation</strong>
-        <span>Review the recipients below. This POC will send to local Mailpit only.</span>
+        <strong data-i18n="modals.safeModeConfirm">Safe mode confirmation</strong>
+        <span data-i18n="modals.safeModeConfirmDetail">Review the recipients below. This POC will send to local Mailpit only.</span>
       </div>
       <div id="send-preview-body" class="preview-body"></div>
       <label class="approval-field"><span>Type <b id="send-approval-phrase">SEND TO MAILPIT</b> to confirm</span><input id="send-approval-input" autocomplete="off" placeholder="SEND TO MAILPIT"></label>
       <div class="confirm-actions">
-        <button class="secondary-button" type="button" id="cancel-send-preview">Go back and edit</button>
-        <button class="primary-button" type="button" id="confirm-send-preview">Confirm send to Mailpit</button>
+        <button class="secondary-button" type="button" id="cancel-send-preview" data-i18n="modals.goBack">Go back and edit</button>
+        <button class="primary-button" type="button" id="confirm-send-preview" data-i18n="modals.confirmSend">Confirm send to Mailpit</button>
       </div>
     </section>
   </div>
@@ -441,11 +448,11 @@
     <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-reminder-title">
       <div class="confirm-icon">!</div>
       <p class="eyebrow">CONFIRM DELETION</p>
-      <h2 id="delete-reminder-title">Delete reminder?</h2>
+      <h2 id="delete-reminder-title" data-i18n="modals.deleteReminderTitle">Delete reminder?</h2>
       <p id="delete-reminder-message">This meeting reminder will be permanently removed.</p>
       <div class="confirm-actions">
-        <button class="secondary-button" type="button" id="cancel-reminder-delete">Keep reminder</button>
-        <button class="danger-button" type="button" id="confirm-reminder-delete">Delete reminder</button>
+        <button class="secondary-button" type="button" id="cancel-reminder-delete" data-i18n="modals.keepReminder">Keep reminder</button>
+        <button class="danger-button" type="button" id="confirm-reminder-delete" data-i18n="modals.deleteReminder">Delete reminder</button>
       </div>
     </section>
   </div>

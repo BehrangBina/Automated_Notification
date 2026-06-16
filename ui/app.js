@@ -9,8 +9,251 @@ const state = {
   pendingSend: null,
   pendingDeleteContact: null,
   pendingDeleteGroup: null,
-  pendingDeleteReminder: null
+  pendingDeleteReminder: null,
+  lang: localStorage.getItem("parman-lang") || "en",
+  currentView: "overview"
 };
+
+const i18n = {
+  en: {
+    "nav.overview": "Overview", "nav.meetings": "Meetings", "nav.birthdays": "Birthdays",
+    "nav.notifications": "Notifications", "nav.groups": "Recipient groups",
+    "nav.schedules": "Schedules", "nav.history": "Delivery history", "nav.settings": "Settings",
+    "sidebar.safeMode": "Safe test mode", "sidebar.safeModeDetail": "Emails go to Mailpit",
+    "topbar.openMailpit": "Open Mailpit",
+    "common.safeMode": "Safe mode", "common.cancelEdit": "Cancel edit", "common.refresh": "Refresh",
+    "common.fieldTimezone": "Timezone", "common.fieldRecipients": "Recipients",
+    "overview.heroTitle": "Your automation tools, without the JSON.",
+    "overview.heroSubtitle": "Create meetings, manage birthdays, send announcements, and review every delivery from one place.",
+    "overview.statContacts": "Birthday contacts", "overview.statContactsSub": "Saved persistently",
+    "overview.statSent": "Sent deliveries", "overview.statSentSub": "Confirmed by email service",
+    "overview.statFailed": "Failed deliveries", "overview.statFailedSub": "Available for retry",
+    "overview.statDuplicates": "Prevented duplicates", "overview.statDuplicatesSub": "Accidental resends stopped",
+    "overview.quickStartEyebrow": "QUICK START", "overview.quickStartTitle": "What would you like to do?",
+    "overview.qMeeting": "Meeting invite", "overview.qMeetingSub": "Agenda, timezones, Zoom and calendar file",
+    "overview.qBirthday": "Birthday contact", "overview.qBirthdaySub": "Save people and run a safe birthday test",
+    "overview.qNotification": "Announcement", "overview.qNotificationSub": "Persian or English branded notification",
+    "overview.qGroups": "Recipient groups", "overview.qGroupsSub": "Reuse the same email lists across every message",
+    "overview.qSchedules": "Schedules", "overview.qSchedulesSub": "Control automatic checks while staying in Mailpit mode",
+    "overview.qSettings": "Safety settings", "overview.qSettingsSub": "Review safe mode and production-readiness basics",
+    "meetings.eyebrow": "MEETING INVITATIONS", "meetings.title": "Create a global meeting",
+    "meetings.subtitle": "Enter the meeting in its source timezone. Local times and the calendar attachment are generated automatically.",
+    "meetings.safeBanner": "This meeting invite will be sent only to local Mailpit after preview approval.",
+    "meetings.fieldTitle": "Meeting title", "meetings.fieldGreeting": "Greeting",
+    "meetings.fieldDate": "Date", "meetings.fieldTime": "Start time",
+    "meetings.fieldTimezone": "Source timezone", "meetings.fieldDuration": "Duration",
+    "meetings.fieldAgenda": "Agenda", "meetings.fieldZoom": "Zoom URL",
+    "meetings.fieldMeetingId": "Meeting ID", "meetings.fieldPasscode": "Passcode",
+    "meetings.fieldOrgName": "Organizer name", "meetings.fieldOrgEmail": "Organizer email",
+    "meetings.safeNote": "the invitation will appear in Mailpit.", "meetings.sendBtn": "Send test meeting invite",
+    "birthdays.eyebrow": "BIRTHDAY AUTOMATION", "birthdays.title": "Birthday contacts",
+    "birthdays.subtitle": "Saved contacts survive Node-RED restarts and are checked in their local timezone.",
+    "birthdays.safeBanner": "Birthday tests require preview approval and go only to local Mailpit.",
+    "birthdays.runTest": "Send selected birthday test", "birthdays.formTitle": "Add a birthday contact",
+    "birthdays.fieldName": "Display name", "birthdays.fieldBirthday": "Birthday",
+    "birthdays.fieldSendHour": "Local send hour", "birthdays.fieldRecipients": "Recipient emails",
+    "birthdays.fieldActive": "Active contact", "birthdays.saveBtn": "Save contact",
+    "birthdays.savedContacts": "Saved contacts", "birthdays.loadingContacts": "Loading contacts...",
+    "notifications.eyebrow": "ANNOUNCEMENTS & REMINDERS", "notifications.title": "Compose a notification",
+    "notifications.subtitle": "The layout automatically switches between Persian RTL and English LTR.",
+    "notifications.safeBanner": "Email goes to local Mailpit. Telegram sends to your configured chat (set up in Settings).",
+    "notifications.fieldLang": "Language", "notifications.fieldType": "Message type",
+    "notifications.fieldSubject": "Email subject", "notifications.fieldHeadline": "Headline",
+    "notifications.fieldMessage": "Message", "notifications.channelsEyebrow": "DELIVERY CHANNELS",
+    "notifications.channelEmail": "Email (Mailpit in safe mode)",
+    "notifications.channelTelegramHint": "(configure in Settings)",
+    "notifications.safeNote": "the notification will appear in Mailpit.", "notifications.sendBtn": "Send test notification",
+    "groups.eyebrow": "REUSABLE AUDIENCES", "groups.title": "Recipient groups",
+    "groups.subtitle": "Manage email lists once, then add them to meetings, birthday messages, or notifications.",
+    "groups.formTitle": "Create a recipient group", "groups.fieldName": "Group name",
+    "groups.fieldDesc": "Description", "groups.fieldEmails": "Email addresses",
+    "groups.saveBtn": "Save recipient group", "groups.savedGroups": "Saved groups", "groups.loading": "Loading recipient groups...",
+    "schedules.eyebrow": "AUTOMATION TIMING", "schedules.title": "Schedules",
+    "schedules.subtitle": "Control automatic checks safely. In this POC, scheduled emails still go only to Mailpit.",
+    "schedules.refreshBtn": "Refresh schedules",
+    "reminders.eyebrow": "MEETING REMINDERS", "reminders.title": "Scheduled reminders",
+    "reminders.subtitle": "Create reminder emails that send once when their reminder time is due.",
+    "reminders.runNow": "Run due reminders now", "reminders.formTitle": "Create meeting reminder",
+    "reminders.fieldTitle": "Reminder title", "reminders.fieldTime": "Reminder time",
+    "reminders.fieldMeetingDate": "Meeting date", "reminders.fieldMeetingTime": "Meeting time",
+    "reminders.fieldMeetingTz": "Meeting timezone", "reminders.fieldZoom": "Zoom URL",
+    "reminders.fieldMessage": "Reminder message", "reminders.fieldEnabled": "Enabled",
+    "reminders.saveBtn": "Save reminder", "reminders.savedReminders": "Saved reminders", "reminders.loading": "Loading meeting reminders...",
+    "runlog.eyebrow": "RUN AUDIT", "runlog.title": "Schedule run log",
+    "runlog.subtitle": "See when automatic checks or manual test runs happened, and what they did.",
+    "runlog.refreshBtn": "Refresh run log", "runlog.clearBtn": "Clear log",
+    "history.eyebrow": "RELIABILITY", "history.title": "Delivery history",
+    "history.subtitle": "Review sent, failed, queued, duplicate, and retry information.",
+    "history.allStatuses": "All statuses", "history.sent": "Sent", "history.failed": "Failed", "history.queued": "Queued",
+    "history.allSources": "All sources", "history.reliabilityTests": "Reliability tests",
+    "history.colStatus": "Status", "history.colSource": "Source", "history.colSubject": "Subject",
+    "history.colRecipients": "Recipients", "history.colAttempts": "Attempts",
+    "history.colDuplicates": "Duplicates", "history.colUpdated": "Updated",
+    "settings.eyebrow": "PRODUCTION READINESS", "settings.title": "Safety settings",
+    "settings.subtitle": "Checkpoint 11A keeps live email disabled. This page documents the current safe-mode settings and what must be true before any future live-send phase.",
+    "settings.operatorTitle": "Operator settings", "settings.fieldEnvName": "Environment name",
+    "settings.fieldFromName": "Default from name", "settings.fieldFromEmail": "Default from email",
+    "settings.fieldReplyTo": "Reply-to email", "settings.fieldApproval": "Future live-send approval phrase",
+    "settings.fieldSmtpProvider": "SMTP provider", "settings.fieldSmtpHost": "SMTP host",
+    "settings.fieldSmtpPort": "SMTP port", "settings.fieldSmtpUser": "SMTP username",
+    "settings.fieldSenderDomain": "Sender domain",
+    "settings.saveNote": "Live email remains locked off in this checkpoint.", "settings.saveBtn": "Save safety settings",
+    "settings.readinessTitle": "Readiness checklist",
+    "settings.preflightEyebrow": "SEND GUARDRAILS", "settings.preflightTitle": "Pre-flight checklist",
+    "settings.preflightSubtitle": "These protections apply before POC messages are accepted for delivery.",
+    "settings.preflightPanelTitle": "Active send protections", "settings.safeLabel": "safe",
+    "telegram.eyebrow": "TELEGRAM NOTIFICATIONS", "telegram.title": "Telegram channel",
+    "telegram.subtitle": "Connect a Telegram bot to send notifications directly to a chat alongside or instead of email.",
+    "telegram.formTitle": "Telegram bot settings", "telegram.fieldToken": "Bot token",
+    "telegram.fieldChatId": "Default chat ID", "telegram.saveBtn": "Save Telegram settings",
+    "backup.eyebrow": "BACKUP & RESTORE", "backup.title": "Portable POC backup",
+    "backup.subtitle": "Export the current local data as JSON, or paste a backup JSON to restore it. Restore keeps live email disabled.",
+    "backup.exportTitle": "Export backup",
+    "backup.exportDesc": "Includes contacts, recipient groups, reminders, settings, schedules, run logs, and delivery metadata.",
+    "backup.exportNote": "The file stays on your computer.", "backup.exportBtn": "Download backup JSON",
+    "backup.restoreTitle": "Restore backup", "backup.restoreField": "Backup JSON",
+    "backup.restoreConfirm": "I understand this replaces saved POC data",
+    "backup.restoreNote": "Live email remains locked off after restore.", "backup.restoreBtn": "Restore backup",
+    "modals.deleteContactTitle": "Delete birthday contact?", "modals.keepContact": "Keep contact", "modals.deleteContact": "Delete contact",
+    "modals.deleteGroupTitle": "Delete recipient group?", "modals.keepGroup": "Keep group", "modals.deleteGroup": "Delete group",
+    "modals.deleteReminderTitle": "Delete reminder?", "modals.keepReminder": "Keep reminder", "modals.deleteReminder": "Delete reminder",
+    "modals.safeModeConfirm": "Safe mode confirmation",
+    "modals.safeModeConfirmDetail": "Review the recipients below. This POC will send to local Mailpit only.",
+    "modals.goBack": "Go back and edit", "modals.confirmSend": "Confirm send to Mailpit"
+  },
+  fa: {
+    "nav.overview": "\u062e\u0644\u0627\u0635\u0647", "nav.meetings": "\u062c\u0644\u0633\u0627\u062a", "nav.birthdays": "\u062a\u0648\u0644\u062f\u0647\u0627",
+    "nav.notifications": "\u0627\u0637\u0644\u0627\u0639\u06cc\u0647\u200c\u0647\u0627", "nav.groups": "\u06af\u0631\u0648\u0647\u200c\u0647\u0627\u06cc \u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646",
+    "nav.schedules": "\u0628\u0631\u0646\u0627\u0645\u0647\u200c\u0647\u0627", "nav.history": "\u062a\u0627\u0631\u06cc\u062e\u0686\u0647 \u0627\u0631\u0633\u0627\u0644", "nav.settings": "\u062a\u0646\u0638\u06cc\u0645\u0627\u062a",
+    "sidebar.safeMode": "\u062d\u0627\u0644\u062a \u0627\u06cc\u0645\u0646", "sidebar.safeModeDetail": "\u0627\u06cc\u0645\u06cc\u0644\u200c\u0647\u0627 \u0628\u0647 Mailpit \u0645\u06cc\u200c\u0631\u0648\u0646\u062f",
+    "topbar.openMailpit": "\u0628\u0627\u0632 \u06a9\u0631\u062f\u0646 Mailpit",
+    "common.safeMode": "\u062d\u0627\u0644\u062a \u0627\u06cc\u0645\u0646", "common.cancelEdit": "\u0644\u063a\u0648 \u0648\u06cc\u0631\u0627\u06cc\u0634", "common.refresh": "\u0628\u0647\u200c\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06cc",
+    "common.fieldTimezone": "\u0645\u0646\u0637\u0642\u0647 \u0632\u0645\u0627\u0646\u06cc", "common.fieldRecipients": "\u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646",
+    "overview.heroTitle": "\u0627\u0628\u0632\u0627\u0631\u0647\u0627\u06cc \u0627\u062a\u0648\u0645\u0627\u0633\u06cc\u0648\u0646 \u067e\u0627\u0631\u0645\u0627\u0646\u060c \u0628\u062f\u0648\u0646 \u0646\u06cc\u0627\u0632 \u0628\u0647 JSON.",
+    "overview.heroSubtitle": "\u062c\u0644\u0633\u0627\u062a \u0628\u06af\u0630\u0627\u0631\u06cc\u062f\u060c \u062a\u0648\u0644\u062f\u0647\u0627 \u0645\u062f\u06cc\u0631\u06cc\u062a \u06a9\u0646\u06cc\u062f\u060c \u0627\u0637\u0644\u0627\u0639\u06cc\u0647 \u0628\u0641\u0631\u0633\u062a\u06cc\u062f \u0648 \u0647\u0631 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627 \u0628\u0631\u0631\u0633\u06cc \u06a9\u0646\u06cc\u062f.",
+    "overview.statContacts": "\u0645\u062e\u0627\u0637\u0628\u06cc\u0646 \u062a\u0648\u0644\u062f", "overview.statContactsSub": "\u0630\u062e\u06cc\u0631\u0647\u200c\u0633\u0627\u0632\u06cc \u062f\u0627\u0626\u0645\u06cc",
+    "overview.statSent": "\u0627\u0631\u0633\u0627\u0644\u200c\u0647\u0627\u06cc \u0645\u0648\u0641\u0642", "overview.statSentSub": "\u062a\u0623\u06cc\u06cc\u062f\u0634\u062f\u0647 \u062a\u0648\u0633\u0637 \u0633\u0631\u0648\u06cc\u0633 \u0627\u06cc\u0645\u06cc\u0644",
+    "overview.statFailed": "\u0627\u0631\u0633\u0627\u0644\u200c\u0647\u0627\u06cc \u0646\u0627\u0645\u0648\u0641\u0642", "overview.statFailedSub": "\u0642\u0627\u0628\u0644 \u062a\u0644\u0627\u0634 \u0645\u062c\u062f\u062f",
+    "overview.statDuplicates": "\u062a\u06a9\u0631\u0627\u0631\u06cc\u200c\u0647\u0627\u06cc \u062c\u0644\u0648\u06af\u06cc\u0631\u06cc\u200c\u0634\u062f\u0647", "overview.statDuplicatesSub": "\u0627\u0631\u0633\u0627\u0644\u200c\u0647\u0627\u06cc \u062a\u0635\u0627\u062f\u0641\u06cc \u0645\u062a\u0648\u0642\u0641 \u0634\u062f",
+    "overview.quickStartEyebrow": "\u0634\u0631\u0648\u0639 \u0633\u0631\u06cc\u0639", "overview.quickStartTitle": "\u0686\u0647 \u06a9\u0627\u0631\u06cc \u0645\u06cc\u200c\u062e\u0648\u0627\u0647\u06cc\u062f \u0627\u0646\u062c\u0627\u0645 \u062f\u0647\u06cc\u062f\u061f",
+    "overview.qMeeting": "\u062f\u0639\u0648\u062a\u200c\u0646\u0627\u0645\u0647 \u062c\u0644\u0633\u0647", "overview.qMeetingSub": "\u062f\u0633\u062a\u0648\u0631\u0627\u0644\u0639\u0645\u0644\u060c \u0645\u0646\u0627\u0637\u0642 \u0632\u0645\u0627\u0646\u06cc\u060c Zoom \u0648 \u0641\u0627\u06cc\u0644 \u062a\u0642\u0648\u06cc\u0645",
+    "overview.qBirthday": "\u0645\u062e\u0627\u0637\u0628 \u062a\u0648\u0644\u062f", "overview.qBirthdaySub": "\u0627\u0641\u0631\u0627\u062f \u0631\u0627 \u0630\u062e\u06cc\u0631\u0647 \u06a9\u0646\u06cc\u062f \u0648 \u062a\u0633\u062a \u0627\u06cc\u0645\u0646 \u062a\u0648\u0644\u062f \u0627\u062c\u0631\u0627 \u06a9\u0646\u06cc\u062f",
+    "overview.qNotification": "\u0627\u0637\u0644\u0627\u0639\u06cc\u0647", "overview.qNotificationSub": "\u0627\u0637\u0644\u0627\u0639\u06cc\u0647 \u0628\u0631\u0646\u062f\u062f\u0627\u0631 \u0628\u0647 \u0641\u0627\u0631\u0633\u06cc \u06cc\u0627 \u0627\u0646\u06af\u0644\u06cc\u0633\u06cc",
+    "overview.qGroups": "\u06af\u0631\u0648\u0647\u200c\u0647\u0627\u06cc \u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646", "overview.qGroupsSub": "\u0644\u06cc\u0633\u062a\u200c\u0647\u0627\u06cc \u0627\u06cc\u0645\u06cc\u0644 \u0631\u0627 \u06cc\u06a9\u200c\u0628\u0627\u0631 \u062a\u0639\u0631\u06cc\u0641 \u06a9\u0646\u06cc\u062f \u0648 \u062f\u0631 \u0647\u0645\u0647 \u062c\u0627 \u0627\u0633\u062a\u0641\u0627\u062f\u0647 \u06a9\u0646\u06cc\u062f",
+    "overview.qSchedules": "\u0628\u0631\u0646\u0627\u0645\u0647\u200c\u0647\u0627", "overview.qSchedulesSub": "\u0628\u0631\u0631\u0633\u06cc\u200c\u0647\u0627\u06cc \u062e\u0648\u062f\u06a9\u0627\u0631 \u0631\u0627 \u0627\u06cc\u0645\u0646 \u06a9\u0646\u062a\u0631\u0644 \u06a9\u0646\u06cc\u062f",
+    "overview.qSettings": "\u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0627\u06cc\u0645\u0646\u06cc\u062a", "overview.qSettingsSub": "\u062d\u0627\u0644\u062a \u0627\u06cc\u0645\u0646 \u0648 \u0622\u0645\u0627\u062f\u06af\u06cc \u062a\u0648\u0644\u06cc\u062f \u0631\u0627 \u0628\u0631\u0631\u0633\u06cc \u06a9\u0646\u06cc\u062f",
+    "meetings.eyebrow": "\u062f\u0639\u0648\u062a\u200c\u0646\u0627\u0645\u0647\u200c\u0647\u0627\u06cc \u062c\u0644\u0633\u0647", "meetings.title": "\u0627\u06cc\u062c\u0627\u062f \u062c\u0644\u0633\u0647 \u0628\u06cc\u0646\u200c\u0627\u0644\u0645\u0644\u0644\u06cc",
+    "meetings.subtitle": "\u062c\u0644\u0633\u0647 \u0631\u0627 \u062f\u0631 \u0645\u0646\u0637\u0642\u0647 \u0632\u0645\u0627\u0646\u06cc \u0645\u0628\u062f\u0627 \u0648\u0627\u0631\u062f \u06a9\u0646\u06cc\u062f\u060c \u0633\u0627\u0639\u062a \u0645\u062d\u0644\u06cc \u0648 \u0641\u0627\u06cc\u0644 \u062a\u0642\u0648\u06cc\u0645 \u062e\u0648\u062f\u06a9\u0627\u0631 \u0633\u0627\u062e\u062a\u0647 \u0645\u06cc\u200c\u0634\u0648\u0646\u062f.",
+    "meetings.safeBanner": "\u0627\u06cc\u0646 \u062f\u0639\u0648\u062a\u200c\u0646\u0627\u0645\u0647 \u0641\u0642\u0637 \u062f\u0631 Mailpit \u0646\u0645\u0627\u06cc\u0634 \u062f\u0627\u062f\u0647 \u0645\u06cc\u200c\u0634\u0648\u062f.",
+    "meetings.fieldTitle": "\u0639\u0646\u0648\u0627\u0646 \u062c\u0644\u0633\u0647", "meetings.fieldGreeting": "\u062e\u0637\u0627\u0628", "meetings.fieldDate": "\u062a\u0627\u0631\u06cc\u062e",
+    "meetings.fieldTime": "\u0633\u0627\u0639\u062a \u0634\u0631\u0648\u0639", "meetings.fieldTimezone": "\u0645\u0646\u0637\u0642\u0647 \u0632\u0645\u0627\u0646\u06cc \u0645\u0628\u062f\u0627", "meetings.fieldDuration": "\u0645\u062f\u062a",
+    "meetings.fieldAgenda": "\u062f\u0633\u062a\u0648\u0631\u0627\u0644\u0639\u0645\u0644", "meetings.fieldZoom": "Zoom URL", "meetings.fieldMeetingId": "\u0634\u0646\u0627\u0633\u0647 \u062c\u0644\u0633\u0647", "meetings.fieldPasscode": "\u0631\u0645\u0632 \u0639\u0628\u0648\u0631",
+    "meetings.fieldOrgName": "\u0646\u0627\u0645 \u0628\u0631\u06af\u0632\u0627\u0631\u06a9\u0646\u0646\u062f\u0647", "meetings.fieldOrgEmail": "\u0627\u06cc\u0645\u06cc\u0644 \u0628\u0631\u06af\u0632\u0627\u0631\u06a9\u0646\u0646\u062f\u0647",
+    "meetings.safeNote": "\u062f\u0639\u0648\u062a\u200c\u0646\u0627\u0645\u0647 \u062f\u0631 Mailpit \u0646\u0645\u0627\u06cc\u0634 \u062f\u0627\u062f\u0647 \u0645\u06cc\u200c\u0634\u0648\u062f.", "meetings.sendBtn": "\u0627\u0631\u0633\u0627\u0644 \u0622\u0632\u0645\u0627\u06cc\u0634\u06cc \u062f\u0639\u0648\u062a\u200c\u0646\u0627\u0645\u0647",
+    "birthdays.eyebrow": "\u0627\u062a\u0648\u0645\u0627\u0633\u06cc\u0648\u0646 \u062a\u0648\u0644\u062f", "birthdays.title": "\u0645\u062e\u0627\u0637\u0628\u06cc\u0646 \u062a\u0648\u0644\u062f",
+    "birthdays.subtitle": "\u0645\u062e\u0627\u0637\u0628\u06cc\u0646 \u067e\u0633 \u0627\u0632 \u0631\u0627\u0647\u200c\u0627\u0646\u062f\u0627\u0632\u06cc \u0645\u062c\u062f\u062f Node-RED \u062d\u0641\u0638 \u0645\u06cc\u200c\u0634\u0648\u0646\u062f.",
+    "birthdays.safeBanner": "\u062a\u0633\u062a \u062a\u0648\u0644\u062f \u0646\u06cc\u0627\u0632 \u0628\u0647 \u062a\u0623\u06cc\u06cc\u062f \u062f\u0627\u0631\u062f \u0648 \u0641\u0642\u0637 \u0628\u0647 Mailpit \u0645\u06cc\u200c\u0631\u0648\u062f.",
+    "birthdays.runTest": "\u0627\u0631\u0633\u0627\u0644 \u062a\u0633\u062a \u062a\u0648\u0644\u062f \u0627\u0646\u062a\u062e\u0627\u0628\u06cc", "birthdays.formTitle": "\u0627\u0641\u0632\u0648\u062f\u0646 \u0645\u062e\u0627\u0637\u0628 \u062a\u0648\u0644\u062f",
+    "birthdays.fieldName": "\u0646\u0627\u0645 \u0646\u0645\u0627\u06cc\u0634\u06cc", "birthdays.fieldBirthday": "\u062a\u0627\u0631\u06cc\u062e \u062a\u0648\u0644\u062f", "birthdays.fieldSendHour": "\u0633\u0627\u0639\u062a \u0627\u0631\u0633\u0627\u0644 \u0645\u062d\u0644\u06cc",
+    "birthdays.fieldRecipients": "\u0627\u06cc\u0645\u06cc\u0644\u200c\u0647\u0627\u06cc \u06af\u06cc\u0631\u0646\u062f\u0647", "birthdays.fieldActive": "\u0645\u062e\u0627\u0637\u0628 \u0641\u0639\u0627\u0644",
+    "birthdays.saveBtn": "\u0630\u062e\u06cc\u0631\u0647 \u0645\u062e\u0627\u0637\u0628", "birthdays.savedContacts": "\u0645\u062e\u0627\u0637\u0628\u06cc\u0646 \u0630\u062e\u06cc\u0631\u0647\u200c\u0634\u062f\u0647", "birthdays.loadingContacts": "\u062f\u0631 \u062d\u0627\u0644 \u0628\u0627\u0631\u06af\u0630\u0627\u0631\u06cc...",
+    "notifications.eyebrow": "\u0627\u0639\u0644\u0627\u0646\u06cc\u0647\u200c\u0647\u0627 \u0648 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627", "notifications.title": "\u0627\u06cc\u062c\u0627\u062f \u0627\u0637\u0644\u0627\u0639\u06cc\u0647",
+    "notifications.subtitle": "\u0686\u06cc\u062f\u0645\u0627\u0646 \u0628\u06cc\u0646 RTL \u0641\u0627\u0631\u0633\u06cc \u0648 LTR \u0627\u0646\u06af\u0644\u06cc\u0633\u06cc \u062a\u063a\u06cc\u06cc\u0631 \u0645\u06cc\u200c\u06a9\u0646\u062f.",
+    "notifications.safeBanner": "\u0627\u06cc\u0645\u06cc\u0644 \u0628\u0647 Mailpit \u0645\u06cc\u200c\u0631\u0648\u062f. \u062a\u0644\u06af\u0631\u0627\u0645 \u0628\u0647 \u06af\u0641\u062a\u06af\u0648\u06cc \u067e\u06cc\u06a9\u0631\u0628\u0646\u062f\u06cc\u200c\u0634\u062f\u0647 \u0645\u06cc\u200c\u0631\u0648\u062f.",
+    "notifications.fieldLang": "\u0632\u0628\u0627\u0646", "notifications.fieldType": "\u0646\u0648\u0639 \u067e\u06cc\u0627\u0645",
+    "notifications.fieldSubject": "\u0645\u0648\u0636\u0648\u0639 \u0627\u06cc\u0645\u06cc\u0644", "notifications.fieldHeadline": "\u062a\u06cc\u062a\u0631 \u067e\u06cc\u0627\u0645",
+    "notifications.fieldMessage": "\u0645\u062a\u0646 \u067e\u06cc\u0627\u0645", "notifications.channelsEyebrow": "\u06a9\u0627\u0646\u0627\u0644\u200c\u0647\u0627\u06cc \u0627\u0631\u0633\u0627\u0644",
+    "notifications.channelEmail": "\u0627\u06cc\u0645\u06cc\u0644 (Mailpit \u062f\u0631 \u062d\u0627\u0644\u062a \u0627\u06cc\u0645\u0646)",
+    "notifications.channelTelegramHint": "(\u062f\u0631 \u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u067e\u06cc\u06a9\u0631\u0628\u0646\u062f\u06cc \u06a9\u0646\u06cc\u062f)",
+    "notifications.safeNote": "\u0627\u0637\u0644\u0627\u0639\u06cc\u0647 \u062f\u0631 Mailpit \u0646\u0645\u0627\u06cc\u0634 \u062f\u0627\u062f\u0647 \u0645\u06cc\u200c\u0634\u0648\u062f.", "notifications.sendBtn": "\u0627\u0631\u0633\u0627\u0644 \u0622\u0632\u0645\u0627\u06cc\u0634\u06cc \u0627\u0637\u0644\u0627\u0639\u06cc\u0647",
+    "groups.eyebrow": "\u0645\u062e\u0627\u0637\u0628\u06cc\u0646 \u062b\u0627\u0628\u062a", "groups.title": "\u06af\u0631\u0648\u0647\u200c\u0647\u0627\u06cc \u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646",
+    "groups.subtitle": "\u0644\u06cc\u0633\u062a\u200c\u0647\u0627\u06cc \u0627\u06cc\u0645\u06cc\u0644 \u0631\u0627 \u06cc\u06a9\u200c\u0628\u0627\u0631 \u062a\u0639\u0631\u06cc\u0641 \u06a9\u0646\u06cc\u062f\u060c \u062f\u0631 \u0647\u0645\u0647 \u062c\u0627 \u0627\u0633\u062a\u0641\u0627\u062f\u0647 \u0645\u062c\u062f\u062f \u06a9\u0646\u06cc\u062f.",
+    "groups.formTitle": "\u0627\u06cc\u062c\u0627\u062f \u06af\u0631\u0648\u0647 \u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646", "groups.fieldName": "\u0646\u0627\u0645 \u06af\u0631\u0648\u0647",
+    "groups.fieldDesc": "\u062a\u0648\u0636\u06cc\u062d\u0627\u062a", "groups.fieldEmails": "\u0622\u062f\u0631\u0633\u200c\u0647\u0627\u06cc \u0627\u06cc\u0645\u06cc\u0644",
+    "groups.saveBtn": "\u0630\u062e\u06cc\u0631\u0647 \u06af\u0631\u0648\u0647", "groups.savedGroups": "\u06af\u0631\u0648\u0647\u200c\u0647\u0627\u06cc \u0630\u062e\u06cc\u0631\u0647\u200c\u0634\u062f\u0647", "groups.loading": "\u062f\u0631 \u062d\u0627\u0644 \u0628\u0627\u0631\u06af\u0630\u0627\u0631\u06cc...",
+    "schedules.eyebrow": "\u0632\u0645\u0627\u0646\u200c\u0628\u0646\u062f\u06cc \u0627\u062a\u0648\u0645\u0627\u0633\u06cc\u0648\u0646", "schedules.title": "\u0628\u0631\u0646\u0627\u0645\u0647\u200c\u0647\u0627",
+    "schedules.subtitle": "\u0628\u0631\u0631\u0633\u06cc\u200c\u0647\u0627\u06cc \u062e\u0648\u062f\u06a9\u0627\u0631 \u0631\u0627 \u0627\u06cc\u0645\u0646 \u06a9\u0646\u062a\u0631\u0644 \u06a9\u0646\u06cc\u062f.", "schedules.refreshBtn": "\u0628\u0647\u200c\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06cc \u0628\u0631\u0646\u0627\u0645\u0647\u200c\u0647\u0627",
+    "reminders.eyebrow": "\u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u06cc \u062c\u0644\u0633\u0647", "reminders.title": "\u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u06cc \u0628\u0631\u0646\u0627\u0645\u0647\u200c\u0631\u06cc\u0632\u06cc\u200c\u0634\u062f\u0647",
+    "reminders.subtitle": "\u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u06cc\u06cc \u0627\u06cc\u062c\u0627\u062f \u06a9\u0646\u06cc\u062f \u06a9\u0647 \u062f\u0631 \u0632\u0645\u0627\u0646 \u0645\u0642\u0631\u0631 \u06cc\u06a9\u200c\u0628\u0627\u0631 \u0627\u0631\u0633\u0627\u0644 \u0645\u06cc\u200c\u0634\u0648\u0646\u062f.",
+    "reminders.runNow": "\u0627\u062c\u0631\u0627\u06cc \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u06cc \u0633\u0631\u0631\u0633\u06cc\u062f\u0647", "reminders.formTitle": "\u0627\u06cc\u062c\u0627\u062f \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc \u062c\u0644\u0633\u0647",
+    "reminders.fieldTitle": "\u0639\u0646\u0648\u0627\u0646 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc", "reminders.fieldTime": "\u0632\u0645\u0627\u0646 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc",
+    "reminders.fieldMeetingDate": "\u062a\u0627\u0631\u06cc\u062e \u062c\u0644\u0633\u0647", "reminders.fieldMeetingTime": "\u0633\u0627\u0639\u062a \u062c\u0644\u0633\u0647",
+    "reminders.fieldMeetingTz": "\u0645\u0646\u0637\u0642\u0647 \u0632\u0645\u0627\u0646\u06cc \u062c\u0644\u0633\u0647", "reminders.fieldZoom": "Zoom URL",
+    "reminders.fieldMessage": "\u0645\u062a\u0646 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc", "reminders.fieldEnabled": "\u0641\u0639\u0627\u0644",
+    "reminders.saveBtn": "\u0630\u062e\u06cc\u0631\u0647 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc", "reminders.savedReminders": "\u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u06cc \u0630\u062e\u06cc\u0631\u0647\u200c\u0634\u062f\u0647", "reminders.loading": "\u062f\u0631 \u062d\u0627\u0644 \u0628\u0627\u0631\u06af\u0630\u0627\u0631\u06cc...",
+    "runlog.eyebrow": "\u062d\u0633\u0627\u0628\u0631\u0633\u06cc \u0627\u062c\u0631\u0627", "runlog.title": "\u06af\u0632\u0627\u0631\u0634 \u0627\u062c\u0631\u0627\u06cc \u0628\u0631\u0646\u0627\u0645\u0647",
+    "runlog.subtitle": "\u0628\u0628\u06cc\u0646\u06cc\u062f \u0628\u0631\u0631\u0633\u06cc\u200c\u0647\u0627\u06cc \u062e\u0648\u062f\u06a9\u0627\u0631 \u0648 \u062f\u0633\u062a\u06cc \u0686\u0647 \u0632\u0645\u0627\u0646\u06cc \u0627\u0646\u062c\u0627\u0645 \u0634\u062f\u0646\u062f.",
+    "runlog.refreshBtn": "\u0628\u0647\u200c\u0631\u0648\u0632\u0631\u0633\u0627\u0646\u06cc \u06af\u0632\u0627\u0631\u0634", "runlog.clearBtn": "\u067e\u0627\u06a9 \u06a9\u0631\u062f\u0646 \u06af\u0632\u0627\u0631\u0634",
+    "history.eyebrow": "\u0642\u0627\u0628\u0644\u06cc\u062a \u0627\u0637\u0645\u06cc\u0646\u0627\u0646", "history.title": "\u062a\u0627\u0631\u06cc\u062e\u0686\u0647 \u0627\u0631\u0633\u0627\u0644",
+    "history.subtitle": "\u0627\u0631\u0633\u0627\u0644\u200c\u0634\u062f\u0647\u060c \u0646\u0627\u0645\u0648\u0641\u0642\u060c \u062f\u0631 \u0635\u0641\u060c \u062a\u06a9\u0631\u0627\u0631\u06cc \u0648 \u062a\u0644\u0627\u0634 \u0645\u062c\u062f\u062f \u0631\u0627 \u0645\u0631\u0648\u0631 \u06a9\u0646\u06cc\u062f.",
+    "history.allStatuses": "\u0647\u0645\u0647 \u0648\u0636\u0639\u06cc\u062a\u200c\u0647\u0627", "history.sent": "\u0627\u0631\u0633\u0627\u0644\u200c\u0634\u062f\u0647", "history.failed": "\u0646\u0627\u0645\u0648\u0641\u0642", "history.queued": "\u062f\u0631 \u0635\u0641",
+    "history.allSources": "\u0647\u0645\u0647 \u0645\u0646\u0627\u0628\u0639", "history.reliabilityTests": "\u062a\u0633\u062a\u200c\u0647\u0627\u06cc \u0642\u0627\u0628\u0644\u06cc\u062a",
+    "history.colStatus": "\u0648\u0636\u0639\u06cc\u062a", "history.colSource": "\u0645\u0646\u0628\u0639", "history.colSubject": "\u0645\u0648\u0636\u0648\u0639",
+    "history.colRecipients": "\u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646", "history.colAttempts": "\u062a\u0644\u0627\u0634\u200c\u0647\u0627", "history.colDuplicates": "\u062a\u06a9\u0631\u0627\u0631\u06cc\u200c\u0647\u0627", "history.colUpdated": "\u0628\u0647\u200c\u0631\u0648\u0632\u0634\u062f\u0647",
+    "settings.eyebrow": "\u0622\u0645\u0627\u062f\u06af\u06cc \u062a\u0648\u0644\u06cc\u062f", "settings.title": "\u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0627\u06cc\u0645\u0646\u06cc\u062a",
+    "settings.subtitle": "\u0627\u06cc\u0645\u06cc\u0644 \u0632\u0646\u062f\u0647 \u0647\u0645\u0686\u0646\u0627\u0646 \u063a\u06cc\u0631\u0641\u0639\u0627\u0644 \u0627\u0633\u062a. \u0627\u06cc\u0646 \u0635\u0641\u062d\u0647 \u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0627\u06cc\u0645\u0646\u06cc\u062a \u0631\u0627 \u0645\u0633\u062a\u0646\u062f \u0633\u0627\u0632\u06cc \u0645\u06cc\u200c\u06a9\u0646\u062f.",
+    "settings.operatorTitle": "\u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0627\u067e\u0631\u0627\u062a\u0648\u0631", "settings.fieldEnvName": "\u0646\u0627\u0645 \u0645\u062d\u06cc\u0637",
+    "settings.fieldFromName": "\u0646\u0627\u0645 \u0641\u0631\u0633\u062a\u0646\u062f\u0647", "settings.fieldFromEmail": "\u0627\u06cc\u0645\u06cc\u0644 \u0641\u0631\u0633\u062a\u0646\u062f\u0647",
+    "settings.fieldReplyTo": "\u0627\u06cc\u0645\u06cc\u0644 \u067e\u0627\u0633\u062e", "settings.fieldApproval": "\u0639\u0628\u0627\u0631\u062a \u062a\u0623\u06cc\u06cc\u062f \u0627\u0631\u0633\u0627\u0644 \u0632\u0646\u062f\u0647",
+    "settings.fieldSmtpProvider": "\u0633\u0631\u0648\u06cc\u0633\u062f\u0647\u0646\u062f\u0647 SMTP", "settings.fieldSmtpHost": "\u0633\u0631\u0648\u0631 SMTP",
+    "settings.fieldSmtpPort": "\u067e\u0648\u0631\u062a SMTP", "settings.fieldSmtpUser": "\u0646\u0627\u0645 \u06a9\u0627\u0631\u0628\u0631\u06cc SMTP",
+    "settings.fieldSenderDomain": "\u062f\u0627\u0645\u0646\u0647 \u0641\u0631\u0633\u062a\u0646\u062f\u0647",
+    "settings.saveNote": "\u0627\u06cc\u0645\u06cc\u0644 \u0632\u0646\u062f\u0647 \u063a\u06cc\u0631\u0641\u0639\u0627\u0644 \u0645\u06cc\u200c\u0645\u0627\u0646\u062f.", "settings.saveBtn": "\u0630\u062e\u06cc\u0631\u0647 \u062a\u0646\u0638\u06cc\u0645\u0627\u062a",
+    "settings.readinessTitle": "\u0644\u06cc\u0633\u062a \u0622\u0645\u0627\u062f\u06af\u06cc",
+    "settings.preflightEyebrow": "\u06af\u0627\u0631\u062f\u0647\u0627\u06cc \u0627\u0631\u0633\u0627\u0644", "settings.preflightTitle": "\u0628\u0631\u0631\u0633\u06cc \u067e\u06cc\u0634 \u0627\u0632 \u067e\u0631\u0648\u0627\u0632",
+    "settings.preflightSubtitle": "\u0627\u06cc\u0646 \u062d\u0641\u0627\u0638\u062a\u200c\u0647\u0627 \u0642\u0628\u0644 \u0627\u0632 \u067e\u0630\u06cc\u0631\u0634 \u067e\u06cc\u0627\u0645\u200c\u0647\u0627 \u0628\u0631\u0631\u0633\u06cc \u0645\u06cc\u200c\u0634\u0648\u0646\u062f.",
+    "settings.preflightPanelTitle": "\u062d\u0641\u0627\u0638\u062a\u200c\u0647\u0627\u06cc \u0641\u0639\u0627\u0644 \u0627\u0631\u0633\u0627\u0644", "settings.safeLabel": "\u0627\u06cc\u0645\u0646",
+    "telegram.eyebrow": "\u0627\u0637\u0644\u0627\u0639\u06cc\u0647\u200c\u0647\u0627\u06cc \u062a\u0644\u06af\u0631\u0627\u0645", "telegram.title": "\u06a9\u0627\u0646\u0627\u0644 \u062a\u0644\u06af\u0631\u0627\u0645",
+    "telegram.subtitle": "\u06cc\u06a9 \u0628\u0627\u062a \u062a\u0644\u06af\u0631\u0627\u0645 \u0628\u0631\u0627\u06cc \u0627\u0631\u0633\u0627\u0644 \u0645\u0633\u062a\u0642\u06cc\u0645 \u0627\u0637\u0644\u0627\u0639\u06cc\u0647\u200c\u0647\u0627 \u0648\u0635\u0644 \u06a9\u0646\u06cc\u062f.",
+    "telegram.formTitle": "\u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0628\u0627\u062a \u062a\u0644\u06af\u0631\u0627\u0645", "telegram.fieldToken": "\u062a\u0648\u06a9\u0646 \u0628\u0627\u062a",
+    "telegram.fieldChatId": "\u0634\u0646\u0627\u0633\u0647 \u06af\u0641\u062a\u06af\u0648", "telegram.saveBtn": "\u0630\u062e\u06cc\u0631\u0647 \u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u062a\u0644\u06af\u0631\u0627\u0645",
+    "backup.eyebrow": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u200c\u06af\u06cc\u0631\u06cc \u0648 \u0628\u0627\u0632\u06af\u0631\u062f\u0627\u0646\u06cc", "backup.title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646 \u0642\u0627\u0628\u0644 \u062d\u0645\u0644",
+    "backup.subtitle": "\u062f\u0627\u062f\u0647\u200c\u0647\u0627\u06cc \u0641\u0639\u0644\u06cc \u0631\u0627 \u062e\u0631\u0648\u062c\u06cc \u06a9\u0646\u06cc\u062f\u060c \u06cc\u0627 \u0631\u0648\u06cc \u067e\u0634\u062a\u06cc\u0628\u0627\u0646 \u0642\u0628\u0644\u06cc \u0628\u0627\u0632\u06af\u0631\u062f\u0627\u0646\u06cc \u06a9\u0646\u06cc\u062f.",
+    "backup.exportTitle": "\u062e\u0631\u0648\u062c\u06cc \u067e\u0634\u062a\u06cc\u0628\u0627\u0646",
+    "backup.exportDesc": "\u0634\u0627\u0645\u0644 \u0645\u062e\u0627\u0637\u0628\u06cc\u0646\u060c \u06af\u0631\u0648\u0647\u200c\u0647\u0627\u060c \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u200c\u0647\u0627\u060c \u062a\u0646\u0638\u06cc\u0645\u0627\u062a \u0648 \u062a\u0627\u0631\u06cc\u062e\u0686\u0647 \u0627\u0631\u0633\u0627\u0644.",
+    "backup.exportNote": "\u0641\u0627\u06cc\u0644 \u0631\u0648\u06cc \u06a9\u0627\u0645\u067e\u06cc\u0648\u062a\u0631 \u0634\u0645\u0627 \u0645\u06cc\u200c\u0645\u0627\u0646\u062f.", "backup.exportBtn": "\u062f\u0627\u0646\u0644\u0648\u062f JSON \u067e\u0634\u062a\u06cc\u0628\u0627\u0646",
+    "backup.restoreTitle": "\u0628\u0627\u0632\u06af\u0631\u062f\u0627\u0646\u06cc \u067e\u0634\u062a\u06cc\u0628\u0627\u0646", "backup.restoreField": "JSON \u067e\u0634\u062a\u06cc\u0628\u0627\u0646",
+    "backup.restoreConfirm": "\u0645\u06cc\u200c\u062f\u0627\u0646\u0645 \u0627\u06cc\u0646 \u062f\u0627\u062f\u0647\u200c\u0647\u0627\u06cc \u0641\u0639\u0644\u06cc \u0631\u0627 \u062c\u0627\u06cc\u06af\u0632\u06cc\u0646 \u0645\u06cc\u200c\u06a9\u0646\u062f",
+    "backup.restoreNote": "\u0627\u06cc\u0645\u06cc\u0644 \u0632\u0646\u062f\u0647 \u067e\u0633 \u0627\u0632 \u0628\u0627\u0632\u06af\u0631\u062f\u0627\u0646\u06cc \u0647\u0645\u0686\u0646\u0627\u0646 \u063a\u06cc\u0631\u0641\u0639\u0627\u0644 \u0645\u06cc\u200c\u0645\u0627\u0646\u062f.", "backup.restoreBtn": "\u0628\u0627\u0632\u06af\u0631\u062f\u0627\u0646\u06cc",
+    "modals.deleteContactTitle": "\u062d\u0630\u0641 \u0645\u062e\u0627\u0637\u0628 \u062a\u0648\u0644\u062f\u061f", "modals.keepContact": "\u0646\u06af\u0647 \u062f\u0627\u0634\u062a\u0646", "modals.deleteContact": "\u062d\u0630\u0641 \u0645\u062e\u0627\u0637\u0628",
+    "modals.deleteGroupTitle": "\u062d\u0630\u0641 \u06af\u0631\u0648\u0647 \u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646\u061f", "modals.keepGroup": "\u0646\u06af\u0647 \u062f\u0627\u0634\u062a\u0646", "modals.deleteGroup": "\u062d\u0630\u0641 \u06af\u0631\u0648\u0647",
+    "modals.deleteReminderTitle": "\u062d\u0630\u0641 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc\u061f", "modals.keepReminder": "\u0646\u06af\u0647 \u062f\u0627\u0634\u062a\u0646", "modals.deleteReminder": "\u062d\u0630\u0641 \u06cc\u0627\u062f\u0622\u0648\u0631\u06cc",
+    "modals.safeModeConfirm": "\u062a\u0623\u06cc\u06cc\u062f \u062d\u0627\u0644\u062a \u0627\u06cc\u0645\u0646",
+    "modals.safeModeConfirmDetail": "\u06af\u06cc\u0631\u0646\u062f\u06af\u0627\u0646 \u0631\u0627 \u0628\u0631\u0631\u0633\u06cc \u06a9\u0646\u06cc\u062f. \u0627\u06cc\u0646 POC \u0641\u0642\u0637 \u0628\u0647 Mailpit \u0645\u062d\u0644\u06cc \u0627\u0631\u0633\u0627\u0644 \u0645\u06cc\u200c\u06a9\u0646\u062f.",
+    "modals.goBack": "\u0628\u0627\u0632\u06af\u0634\u062a \u0648 \u0648\u06cc\u0631\u0627\u06cc\u0634", "modals.confirmSend": "\u062a\u0623\u06cc\u06cc\u062f \u0627\u0631\u0633\u0627\u0644"
+  }
+};
+
+function t(key) {
+  return (i18n[state.lang] || i18n.en)[key] || (i18n.en[key] || key);
+}
+
+function applyLanguage(lang) {
+  state.lang = lang;
+  localStorage.setItem("parman-lang", lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const text = t(key);
+    if (el.tagName === "OPTION") { el.textContent = text; }
+    else if (el.children.length === 0) { el.textContent = text; }
+    else { el.childNodes.forEach(node => { if (node.nodeType === 3 && node.textContent.trim()) node.textContent = text; }); }
+  });
+  $("#lang-en")?.classList.toggle("active", lang === "en");
+  $("#lang-fa")?.classList.toggle("active", lang === "fa");
+  if (state.currentView) {
+    const pt = $("#page-title");
+    if (pt) pt.textContent = t("nav." + state.currentView) || "Parman Automation";
+  }
+}
+
+function initLanguage() {
+  applyLanguage(state.lang);
+  $$("[data-lang]").forEach(btn => {
+    btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
+  });
+}
 
 if (location.port !== "1880") {
   location.replace(`http://localhost:1880/app/${location.hash || "#overview"}`);
@@ -129,8 +372,8 @@ function setBusy(form, busy) {
 function showView(name) {
   $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${name}`));
   $$(".nav-item").forEach(button => button.classList.toggle("active", button.dataset.view === name));
-  const labels = { overview: "Overview", meetings: "Meetings", birthdays: "Birthdays", notifications: "Notifications", groups: "Recipient groups", schedules: "Schedules", history: "Delivery history", settings: "Settings" };
-  $("#page-title").textContent = labels[name] || "Parman Automation";
+  state.currentView = name;
+  $("#page-title").textContent = t("nav." + name) || "Parman Automation";
   $(".sidebar").classList.remove("open");
   if (name === "overview") loadOverview();
   if (name === "birthdays") loadContacts();
@@ -1074,5 +1317,6 @@ $("#export-backup").addEventListener("click", async event => {
 
 loadRecipientGroups();
 loadMeetingReminders();
+initLanguage();
 const initialView = location.hash.replace("#", "");
 showView(["overview", "meetings", "birthdays", "notifications", "groups", "schedules", "history", "settings"].includes(initialView) ? initialView : "overview");
