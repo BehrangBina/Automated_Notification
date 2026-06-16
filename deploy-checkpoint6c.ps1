@@ -65,11 +65,11 @@ if (
     input.channels !== undefined &&
     (
         !Array.isArray(input.channels) ||
-        input.channels.length !== 1 ||
-        input.channels[0] !== 'email'
+        input.channels.length === 0 ||
+        input.channels.some(function(ch) { return ch !== 'email' && ch !== 'telegram'; })
     )
 ) {
-    errors.push('this POC currently supports channels: ["email"]');
+    errors.push('channels must be an array containing email and/or telegram');
 }
 
 if (errors.length) {
@@ -152,6 +152,32 @@ const emailMessage = {
 delete emailMessage.req;
 delete emailMessage.res;
 
+const channels = Array.isArray(input.channels) ? input.channels : ['email'];
+const emailOutput = channels.includes('email') ? emailMessage : null;
+
+let telegramOutput = null;
+if (channels.includes('telegram')) {
+    const appSettings = global.get('appSettings') || {};
+    const tg = appSettings.telegram || {};
+    const botToken = tg.botToken || '';
+    const chatId = tg.defaultChatId || '';
+    if (botToken && chatId) {
+        const tgParts = ['<b>' + escapeHtml(input.subject.trim()) + '</b>'];
+        paragraphs
+            .filter(function(p) { return String(p).trim(); })
+            .forEach(function(p) { tgParts.push(escapeHtml(String(p).trim())); });
+        if (input.action) {
+            tgParts.push('<a href="' + escapeHtml(input.action.url) + '">' + escapeHtml(input.action.label) + '</a>');
+        }
+        telegramOutput = {
+            url: 'https://api.telegram.org/bot' + botToken + '/sendMessage',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            payload: JSON.stringify({ chat_id: chatId, text: tgParts.join('\n\n'), parse_mode: 'HTML' })
+        };
+    }
+}
+
 const response = {
     ...msg,
     statusCode: 202,
@@ -164,12 +190,12 @@ const response = {
             language,
             type,
             recipients: emailMessage.to.split(','),
-            channel: 'email',
+            channels,
             hasAction: Boolean(input.action)
         }
     }
 };
-return [emailMessage, response];
+return [emailOutput, response, telegramOutput];
 '@
 $functionCode = $functionCode.Replace("__HTML_TEMPLATE_JSON__", $htmlTemplateJson)
 $functionCode = $functionCode.Replace("__LOGO_BASE64__", $logoBase64)
@@ -211,7 +237,7 @@ $nodes = @(
         z = "checkpoint6c-tab"
         name = "Validate and build notification"
         func = $functionCode
-        outputs = 2
+        outputs = 3
         timeout = 0
         noerr = 0
         initialize = ""
@@ -221,7 +247,8 @@ $nodes = @(
         y = 140
         wires = @(
             @("checkpoint6c-email"),
-            @("checkpoint6c-response")
+            @("checkpoint6c-response"),
+            @("checkpoint6c-telegram-send")
         )
     },
     @{
@@ -250,6 +277,26 @@ $nodes = @(
         headers = @{}
         x = 750
         y = 180
+        wires = @()
+    },
+    @{
+        id = "checkpoint6c-telegram-send"
+        type = "http request"
+        z = "checkpoint6c-tab"
+        name = "Send to Telegram"
+        method = "POST"
+        ret = "obj"
+        paytoqs = "ignore"
+        url = ""
+        tls = ""
+        persist = $false
+        proxy = ""
+        insecureHTTPParser = $false
+        authType = ""
+        senderr = $false
+        headers = @()
+        x = 750
+        y = 250
         wires = @()
     }
 )

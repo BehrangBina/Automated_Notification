@@ -375,6 +375,29 @@ async function loadSettings() {
   } catch (error) {
     list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
+  await loadTelegramSettings();
+}
+
+async function loadTelegramSettings() {
+  const statusEl = $("#telegram-settings-status");
+  const form = $("#telegram-settings-form");
+  if (!statusEl || !form) return;
+  try {
+    const data = await api("/api/settings/telegram");
+    const tg = data.telegram || {};
+    if (tg.botTokenConfigured && tg.defaultChatId) {
+      statusEl.textContent = `Configured. Chat ID: ${tg.defaultChatId}`;
+      const hint = $("#telegram-channel-hint");
+      if (hint) hint.textContent = "(configured)";
+    } else if (tg.botTokenConfigured) {
+      statusEl.textContent = "Bot token saved. Chat ID not set.";
+    } else {
+      statusEl.textContent = "Not configured.";
+    }
+    form.elements.telegramChatId.value = tg.defaultChatId || "";
+  } catch {
+    statusEl.textContent = "Could not load Telegram settings.";
+  }
 }
 
 function editRecipientGroup(id) {
@@ -769,6 +792,26 @@ $("#settings-form").addEventListener("submit", async event => {
   }
 });
 
+$("#telegram-settings-form")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setBusy(form, true);
+  const values = Object.fromEntries(new FormData(form));
+  try {
+    await api("/api/settings/telegram", {
+      method: "POST",
+      body: JSON.stringify({ botToken: values.telegramBotToken, defaultChatId: values.telegramChatId })
+    });
+    form.elements.telegramBotToken.value = "";
+    toast("Telegram settings saved.");
+    await loadTelegramSettings();
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    setBusy(form, false);
+  }
+});
+
 $("#restore-form").addEventListener("submit", async event => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -823,6 +866,10 @@ $("#notification-form").addEventListener("submit", async event => {
   const form = event.currentTarget;
   const values = Object.fromEntries(new FormData(form));
   const action = values.actionLabel && values.actionUrl ? { label: values.actionLabel, url: values.actionUrl } : undefined;
+  const channels = [];
+  if (form.elements.channelEmail?.checked !== false) channels.push("email");
+  if (form.elements.channelTelegram?.checked) channels.push("telegram");
+  if (!channels.length) channels.push("email");
   const payload = {
     language: values.language,
     type: values.type,
@@ -830,21 +877,23 @@ $("#notification-form").addEventListener("submit", async event => {
     title: values.title,
     message: values.message,
     recipients: splitEmails(values.recipients),
-    channels: ["email"],
+    channels,
     idempotencyKey: uniqueKey("notification"),
     action
   };
+  const channelLabel = channels.includes("telegram") && channels.includes("email") ? "Mailpit + Telegram" : channels.includes("telegram") ? "Telegram" : "Mailpit";
   openSendPreview("Review notification", [
     { label: "Subject", value: payload.subject },
     { label: "Headline", value: payload.title },
     { label: "Recipients", value: payload.recipients },
     { label: "Language", value: payload.language },
     { label: "Type", value: payload.type },
+    { label: "Channels", value: channels },
     { label: "Message", value: payload.message }
   ], "Confirm notification send", async () => {
     try {
       await api("/api/notifications/send", { method: "POST", body: JSON.stringify(payload) });
-      toast("Notification sent to Mailpit successfully.");
+      toast(`Notification sent to ${channelLabel}.`);
     } catch (error) {
       toast(error.message, true);
       throw error;

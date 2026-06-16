@@ -158,7 +158,7 @@
           <div class="section-heading">
             <div><p class="eyebrow">ANNOUNCEMENTS & REMINDERS</p><h2>Compose a notification</h2><p>The layout automatically switches between Persian RTL and English LTR.</p></div>
           </div>
-          <div class="safe-send-banner"><strong>Safe mode</strong><span>Notifications require preview approval and go only to local Mailpit.</span></div>
+          <div class="safe-send-banner"><strong>Safe mode</strong><span>Email goes to local Mailpit. Telegram sends to your configured chat (set up in Settings).</span></div>
           <form class="form-card" id="notification-form">
             <div class="form-grid two">
               <label><span>Language</span><select name="language"><option value="fa">Persian</option><option value="en">English</option></select></label>
@@ -171,6 +171,11 @@
 این یک پیام آزمایشی از سامانه اتوماسیون پارمان است.
 
 با سپاس از همراهی شما.</textarea></label>
+            <div class="channel-options">
+              <p class="eyebrow">DELIVERY CHANNELS</p>
+              <label class="checkbox"><input name="channelEmail" type="checkbox" checked><span>Email (Mailpit in safe mode)</span></label>
+              <label class="checkbox"><input name="channelTelegram" type="checkbox"><span>Telegram <small id="telegram-channel-hint">(configure in Settings)</small></span></label>
+            </div>
             <div class="group-picker">
               <label><span>Recipient group <small>Optional</small></span><select class="recipient-group-select"><option value="">Choose a saved group</option></select></label>
               <button class="secondary-button apply-recipient-group" type="button" data-target-form="notification-form" data-target-field="recipients">Add group recipients</button>
@@ -315,6 +320,30 @@
             <div class="panel">
               <div class="panel-head"><h3>Readiness checklist</h3><button class="icon-button" id="refresh-settings">Refresh</button></div>
               <div id="readiness-list" class="readiness-list"><div class="empty-state">Loading settings...</div></div>
+            </div>
+          </div>
+          <div class="section-heading">
+            <div><p class="eyebrow">TELEGRAM NOTIFICATIONS</p><h2>Telegram channel</h2><p>Connect a Telegram bot to send notifications directly to a chat alongside or instead of email.</p></div>
+          </div>
+          <div class="two-column">
+            <form class="form-card compact" id="telegram-settings-form">
+              <h3>Telegram bot settings</h3>
+              <label><span>Bot token <small>From @BotFather</small></span><input name="telegramBotToken" type="password" autocomplete="off" placeholder="123456789:ABCdefGHI..."></label>
+              <label><span>Default chat ID <small>From @Getmyid_bot</small></span><input name="telegramChatId" placeholder="e.g. -1001234567890 or 987654321"></label>
+              <div class="secret-note"><strong>Secret rule:</strong><span>The bot token is stored in Node-RED global context only. Never commit it to Git or share it publicly.</span></div>
+              <div class="form-actions">
+                <p id="telegram-settings-status">Not configured.</p>
+                <button class="primary-button" type="submit">Save Telegram settings</button>
+              </div>
+            </form>
+            <div class="panel">
+              <div class="panel-head"><h3>How to set up</h3></div>
+              <div class="readiness-list">
+                <div class="readiness-item"><div><strong>1. Create a bot</strong><span>Message @BotFather on Telegram &rarr; /newbot &rarr; copy the token shown</span></div></div>
+                <div class="readiness-item"><div><strong>2. Get your chat ID</strong><span>Message @Getmyid_bot on Telegram &rarr; copy the numeric ID shown</span></div></div>
+                <div class="readiness-item"><div><strong>3. Save here</strong><span>Paste the token and chat ID above, then click Save</span></div></div>
+                <div class="readiness-item"><div><strong>4. Send a test</strong><span>Open Notifications, tick Telegram channel, and send a test notification</span></div></div>
+              </div>
             </div>
           </div>
           <div class="section-heading">
